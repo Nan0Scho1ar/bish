@@ -18,7 +18,6 @@ fd
 bat
 keychain
 awk
-gawk
 nodejs
 R
 cheat.sh

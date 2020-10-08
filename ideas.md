@@ -73,6 +73,9 @@ totable
 ### Rerun previous
 !!
 
+## pipe stdout to clipboard
+echo test | clip
+
 ### Rerun cmd 455
 !455
 

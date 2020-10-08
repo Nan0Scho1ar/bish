@@ -1,4 +1,4 @@
-# BISH (**BI***oinformatics* **SH***ell*)
+# BISH (**BI**oinformatics **SH**ell)
 
 ## Packages
 q

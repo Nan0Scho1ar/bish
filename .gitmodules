@@ -1,0 +1,3 @@
+[submodule "gitmanager"]
+	path = gitmanager
+	url = https://github.com/Nan0Scho1ar/gitmanager

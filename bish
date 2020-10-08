@@ -1,0 +1,71 @@
+#!/bin/sh
+
+show_help() {
+    echo "TODO Write help";
+}
+
+init() {
+    echo -e "bish, the bioinformatics shell\nversion: v0.0.1";
+    while true; do process_input; done
+}
+
+process_input() {
+    printf "$";
+    read;
+    BISH_COMMAND=$REPLY;
+    case $BISH_COMMAND in
+        "exit") exit
+        ;;
+        "bish") bish
+        ;;
+        "help") show_help
+        ;;
+        *) eval $BISH_COMMAND
+        ;;
+    esac
+}
+
+print_function() { type $1 | sed '/[^(print_function)] is a function/d' && echo; }
+
+bish() {
+    echo -e '#!/bin/sh\n';
+    print_function show_help;
+    print_function init;
+    print_function process_input;
+    #Why tf doesn't this line work
+    echo 'print_function() { type $1 | sed " is a function$/d" && echo; }';
+    echo;
+    print_function bish;
+    echo 'init';
+}
+
+init
+#for file in ls: cat file
+#for file in *: cat file
+#for file in $(ls): cat file
+#for file in `ls`: cat $file
+#
+#
+#cd ~/repos/bish
+#
+#example():
+#
+#for file in * where $file not contains "#":
+#    if extension == ".sh"
+#    cat $file
+#    prompt "Edit file?" && vim $file
+#    replace -i "toma" with "hawk" in $file
+#    sed -i "s/hawk/toma/gi" $file
+#end
+#
+#for line in file in * where $file not contains "#":
+#    echo $line
+#end
+#
+#while true:
+#
+#    break
+#
+#!563...565
+#!563.&.565
+#!563...565 > commands.bish

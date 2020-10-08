@@ -1,4 +1,4 @@
-# BISH (Bio Informatics Shell)
+# BISH (**BI***oinformatics* **SH***ell*)
 
 ## Packages
 q

@@ -1,6 +1,6 @@
-# BISH (Bio Informatics Shell)
+# BISH (**BI**oinformatics **SH**ell)
 
-##Packages
+## Packages
 q
 tmux
 python
@@ -18,25 +18,24 @@ fd
 bat
 keychain
 awk
-gawk
 nodejs
 R
 cheat.sh
 
-###Node pkg
+### Node pkg
 thefuck
 
-##Maybe packages
+## Maybe packages
 flameshot ?
 galculator
 
 
-##Bookmarks
+## Bookmarks
 Paths
 Urls
 Machines (hosts)
 
-##CMDs
+## CMDs
 ### Explore repos like ncbi
 explore
 
@@ -70,19 +69,22 @@ graph
 ### Convert lines with delimiter to pretty print table
 totable
 
-###Rerun previous
+### Rerun previous
 !!
 
-###Rerun cmd 455
+## pipe stdout to clipboard
+echo test | clip
+
+### Rerun cmd 455
 !455
 
-###Rerun cmd 455 through 458 (455; 456; 457; 458)
+### Rerun cmd 455 through 458 (455; 456; 457; 458)
 !455...458
 
-###Rerun cmd 455 through 458 (455 && 456 && 457 && 458)
+### Rerun cmd 455 through 458 (455 && 456 && 457 && 458)
 !455.&.458
 
-###Rerun cmd 455 through 458 (455 || 456 || 457 || 458)    is this useful?
+### Rerun cmd 455 through 458 (455 || 456 || 457 || 458)    is this useful?
 !455.|.458
 
 ### TODO LATER

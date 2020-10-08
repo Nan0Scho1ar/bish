@@ -4,37 +4,99 @@ show_help() {
     echo "TODO Write help";
 }
 
+#I think I will have to use something other than read
+bish_read() {
+    #This is a bashism, need to fix
+    local error=$([[ $? != 0 ]] && echo "[${red}✗${reset}]")
+    local userathost="${yellow}$(whoami)${reset}@${cyan}$(hostname)${reset}"
+    local dir="$yellow$(pwd)$reset"
+    export BISH_PS1="$reset┌─$error─[$userathost]─[$dir]\n└──╼"
+    printf "$BISH_PS1 ";
+    read;
+    BISH_COMMAND=$REPLY;
+    #Another bashism
+    while [[ $BISH_COMMAND =~ [[:space:]]\\$ ]] ; do keep_reading; done
+    #TODO Replace newlines in multiline command before writing history
+    echo $BISH_COMMAND >> ~/.config/bish/bish_history
+}
+
+#I think I will have to use something other than read
+keep_reading() {
+    #This borked
+    echo
+    printf '>';
+    read;
+    BISH_COMMAND+=$REPLY;
+}
+
 init() {
+    red=`tput setaf 1`;
+    green=`tput setaf 2`;
+    yellow=`tput setaf 3`;
+    blue=`tput setaf 4`;
+    magenta=`tput setaf 5`;
+    cyan=`tput setaf 6`;
+    white=`tput setaf 7`;
+    blink=`tput blink`;
+    reset=`tput sgr0`;
+    source ~/.bashrc
     echo -e "bish, the bioinformatics shell\nversion: v0.0.1";
     while true; do process_input; done
 }
 
 process_input() {
-    printf "$";
-    read;
-    BISH_COMMAND=$REPLY;
+    bish_read
     case $BISH_COMMAND in
-        "exit") exit
+        "exit")
+            exit
         ;;
-        "bish") bish
+        "bish")
+            bish
         ;;
-        "help") show_help
+        "help")
+            show_help
         ;;
-        *) eval $BISH_COMMAND
+        *) bish_eval
         ;;
     esac
 }
 
-print_function() { type $1 | sed '/[^(print_function)] is a function/d' && echo; }
+bish_eval() {
+    if [[ $BISH_COMMAND =~ ^\![0-9]+\.\.[0-9]+$ ]]; then
+        START="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\.\([0-9]*\)$/\1/')"
+        END="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\.\([0-9]*\)$/\2/')"
+        for i in $(eval echo "{$START..$END}"); do
+            echo "TODO Exec history cmd #$i"
+        done
+    elif [[ $BISH_COMMAND =~ ^\![0-9]+\.\&\.[0-9]+$ ]]; then
+        START="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\&\.\([0-9]*\)$/\1/')"
+        END="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\&\.\([0-9]*\)$/\2/')"
+        for i in $(eval echo "{$START..$END}"); do
+            echo "TODO Exec history cmd #$i &&"
+        done
+    elif [[ $BISH_COMMAND =~ ^\![0-9]+\.\|\.[0-9]+$ ]]; then
+        START="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\|\.\([0-9]*\)$/\1/')"
+        END="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\|\.\([0-9]*\)$/\2/')"
+        for i in $(eval echo "{$START..$END}"); do
+            echo "TODO Exec history cmd #$i ||"
+        done
+    else
+    #TODO Catch &|& and |||
+        eval $BISH_COMMAND;
+    fi
+}
+
+print_function() { type $1 | tail -n +2 && echo; }
 
 bish() {
     echo -e '#!/bin/sh\n';
     print_function show_help;
+    print_function bish_read;
+    print_function keep_reading;
     print_function init;
     print_function process_input;
-    #Why tf doesn't this line work
-    echo 'print_function() { type $1 | sed " is a function$/d" && echo; }';
-    echo;
+    print_function bish_eval;
+    print_function print_function;
     print_function bish;
     echo 'init';
 }

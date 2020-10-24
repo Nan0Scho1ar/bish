@@ -1,32 +1,24 @@
-#!/bin/sh
+#!/bin/bash
 
 show_help() {
     echo "TODO Write help";
 }
 
-#I think I will have to use something other than read
 bish_read() {
-    #This is a bashism, need to fix
+    #idk if this is POSIX compliant
     local error=$([[ $? != 0 ]] && echo "[${red}✗${reset}]")
     local userathost="${yellow}$(whoami)${reset}@${cyan}$(hostname)${reset}"
     local dir="$yellow$(pwd)$reset"
-    export BISH_PS1="$reset┌─$error─[$userathost]─[$dir]\n└──╼"
-    printf "$BISH_PS1 ";
-    read;
-    BISH_COMMAND=$REPLY;
-    #Another bashism
-    while [[ $BISH_COMMAND =~ [[:space:]]\\$ ]] ; do keep_reading; done
+    export BISH_PS1="$(echo -e $reset'┌─'$error'─['$userathost']─['$dir']\n└──╼ ')"
+    read -p "$BISH_PS1" -e -r BISH_COMMAND;
+    #idk if this is POSIX compliant
+    #while [[ $BISH_COMMAND =~ [[:space:]]\\$ ]]; do
+    while [[ $BISH_COMMAND =~ \\$ ]]; do
+        printf "$BISH_PS2 ";
+        BISH_COMMAND=$(echo $BISH_COMMAND $(read -e -r));
+    done
     #TODO Replace newlines in multiline command before writing history
     echo $BISH_COMMAND >> ~/.config/bish/bish_history
-}
-
-#I think I will have to use something other than read
-keep_reading() {
-    #This borked
-    echo
-    printf '>';
-    read;
-    BISH_COMMAND+=$REPLY;
 }
 
 init() {
@@ -39,6 +31,8 @@ init() {
     white=`tput setaf 7`;
     blink=`tput blink`;
     reset=`tput sgr0`;
+    export BISH_PS2=">"
+    if [ -z ~/.config/bish/bish_history ]; then echo "exists"; fi
     source ~/.bashrc
     echo -e "bish, the bioinformatics shell\nversion: v0.0.1";
     while true; do process_input; done
@@ -61,19 +55,34 @@ process_input() {
     esac
 }
 
+lex() {
+    echo "Lexing..."
+}
+
+parse() {
+    echo "Parsing..."
+}
+
+eval() {
+    echo "Evaluating..."
+}
+
 bish_eval() {
+    # !50..55
     if [[ $BISH_COMMAND =~ ^\![0-9]+\.\.[0-9]+$ ]]; then
         START="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\.\([0-9]*\)$/\1/')"
         END="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\.\([0-9]*\)$/\2/')"
         for i in $(eval echo "{$START..$END}"); do
             echo "TODO Exec history cmd #$i"
         done
+    # !50.&.55
     elif [[ $BISH_COMMAND =~ ^\![0-9]+\.\&\.[0-9]+$ ]]; then
         START="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\&\.\([0-9]*\)$/\1/')"
         END="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\&\.\([0-9]*\)$/\2/')"
         for i in $(eval echo "{$START..$END}"); do
             echo "TODO Exec history cmd #$i &&"
         done
+    # !50.|.55
     elif [[ $BISH_COMMAND =~ ^\![0-9]+\.\|\.[0-9]+$ ]]; then
         START="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\|\.\([0-9]*\)$/\1/')"
         END="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\|\.\([0-9]*\)$/\2/')"
@@ -127,7 +136,68 @@ init
 #while true:
 #
 #    break
+
+
+# Quotes
+# $"[0-9]
+# echo "test"
+# echo $"0test1 $(echo $"1test2$"1)$"0
+# echo $"0test1 $(echo $"1test2 $(echo $"2test3$"2)$"1)$"0
+
+# Control Pipes
+# echo test &|&  cat
+# echo test |||  cat
+
+# REDO
 #
-#!563...565
-#!563.&.565
-#!563...565 > commands.bish
+# !563..565
+# becomes: !563; !564; !565;
+#
+# !563..565 > commands.bish
+# !563.&.565
+# !563.&&.565
+# !563.&|&.565
+# !563.|.565
+# !563.||.565
+# !563.|||.565
+#
+# >
+# >>
+# &>
+# &>>
+# <
+# <<
+#
+# if [ x ]; then
+# if x:
+# for x in
+# if dir not exists "~/repos/bish/":
+# if file not exists "~/repos/bish/bish":
+# if var not exists "filename"
+# if func not exists "print()":
+#
+#
+# !
+# #
+# $
+# (
+# )
+# {
+# }
+# [
+# ]
+# |
+# &
+# '
+# "
+# `
+# ;
+# .
+# +
+# -
+# /
+# \
+# *
+# <
+# >
+#

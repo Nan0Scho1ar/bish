@@ -1,5 +1,35 @@
 #!/bin/bash
 
+splice() {
+    echo "Splicing..."
+}
+
+fzy() {
+    str=""
+    backspace=$(echo -e "0000000 005177\n0000002\n")
+    enter=$(echo -e "0000000 000012\n0000001\n")
+    echo -e "\e[?1049h";
+    while true; do
+        regex=$(echo "$str" | sed "s/\(.\)/\1.*/g");
+        [[ $str = "" ]] && echo "$@" || echo "$@" | grep ".*$regex"
+        read -p "> $str" -n 1 -s;
+        if [[ $(echo "$REPLY" | od) = "$backspace" ]]; then
+            [[ $str = "" ]] && echo -e "\e[?1049l" && return 1
+            str="${str::-1}"
+        elif [[ $(echo "$REPLY" | od) = "$enter" ]]; then
+            echo -e "\e[?1049l$(echo "$@" | grep ".*$regex")"
+            return 0
+        else
+            str="$str$REPLY"
+        fi
+        for i in $(seq 1 $(tput cols)); do echo; done;
+    done
+}
+
+collect() {
+    echo "Collecting..."
+}
+
 show_help() {
     echo "TODO Write help";
 }
@@ -22,6 +52,7 @@ bish_read() {
 }
 
 init() {
+    [ -z $1 ] && bish && return
     red=`tput setaf 1`;
     green=`tput setaf 2`;
     yellow=`tput setaf 3`;
@@ -35,7 +66,7 @@ init() {
     if [ -z ~/.config/bish/bish_history ]; then echo "exists"; fi
     source ~/.bashrc
     echo -e "bish, the bioinformatics shell\nversion: v0.0.1";
-    while true; do process_input; done
+    [ $1 = "-i" ] && while true; do process_input; done
 }
 
 process_input() {
@@ -44,9 +75,9 @@ process_input() {
         "exit")
             exit
         ;;
-        "bish")
-            bish
-        ;;
+        #"bish")
+            #bish
+        #;;
         "help")
             show_help
         ;;
@@ -99,9 +130,9 @@ print_function() { type $1 | tail -n +2 && echo; }
 
 bish() {
     echo -e '#!/bin/sh\n';
+    print_function splice;
     print_function show_help;
     print_function bish_read;
-    print_function keep_reading;
     print_function init;
     print_function process_input;
     print_function bish_eval;

@@ -1,234 +1,122 @@
-#!/bin/bash
+#!/bin/sh
+# BISH: The BioShell
+# Author: Nan0Scho1ar (Christopher Mackinga)
+# Created: 07/10/2020
+# License: MIT License
+# Self replicating shell script loader
 
-splice() {
-    echo "Splicing..."
-}
+BISH_CONFIG='
+bashrc_path = "$HOME/dotfiles/.bashrc"
 
-fzy() {
-    str=""
-    backspace=$(echo -e "0000000 005177\n0000002\n")
-    enter=$(echo -e "0000000 000012\n0000001\n")
-    echo -e "\e[?1049h";
-    while true; do
-        regex=$(echo "$str" | sed "s/\(.\)/\1.*/g");
-        [[ $str = "" ]] && echo "$@" || echo "$@" | grep ".*$regex"
-        read -p "> $str" -n 1 -s;
-        if [[ $(echo "$REPLY" | od) = "$backspace" ]]; then
-            [[ $str = "" ]] && echo -e "\e[?1049l" && return 1
-            str="${str::-1}"
-        elif [[ $(echo "$REPLY" | od) = "$enter" ]]; then
-            echo -e "\e[?1049l$(echo "$@" | grep ".*$regex")"
-            return 0
-        else
-            str="$str$REPLY"
-        fi
-        for i in $(seq 1 $(tput cols)); do echo; done;
-    done
-}
+[Functions]
+[Functions.bish]
+[Functions.toml]
+[Functions.toml.SubFunc.exprq]
+[State]
+'
 
-collect() {
-    echo "Collecting..."
-}
-
-show_help() {
-    echo "TODO Write help";
-}
-
-bish_read() {
-    #idk if this is POSIX compliant
-    local error=$([[ $? != 0 ]] && echo "[${red}✗${reset}]")
-    local userathost="${yellow}$(whoami)${reset}@${cyan}$(hostname)${reset}"
-    local dir="$yellow$(pwd)$reset"
-    export BISH_PS1="$(echo -e $reset'┌─'$error'─['$userathost']─['$dir']\n└──╼ ')"
-    read -p "$BISH_PS1" -e -r BISH_COMMAND;
-    #idk if this is POSIX compliant
-    #while [[ $BISH_COMMAND =~ [[:space:]]\\$ ]]; do
-    while [[ $BISH_COMMAND =~ \\$ ]]; do
-        printf "$BISH_PS2 ";
-        BISH_COMMAND=$(echo $BISH_COMMAND $(read -e -r));
-    done
-    #TODO Replace newlines in multiline command before writing history
-    echo $BISH_COMMAND >> ~/.config/bish/bish_history
-}
-
-init() {
-    [ -z $1 ] && bish && return
-    red=`tput setaf 1`;
-    green=`tput setaf 2`;
-    yellow=`tput setaf 3`;
-    blue=`tput setaf 4`;
-    magenta=`tput setaf 5`;
-    cyan=`tput setaf 6`;
-    white=`tput setaf 7`;
-    blink=`tput blink`;
-    reset=`tput sgr0`;
-    export BISH_PS2=">"
-    if [ -z ~/.config/bish/bish_history ]; then echo "exists"; fi
-    source ~/.bashrc
-    echo -e "bish, the bioinformatics shell\nversion: v0.0.1";
-    [ $1 = "-i" ] && while true; do process_input; done
-}
-
-process_input() {
-    bish_read
-    case $BISH_COMMAND in
-        "exit")
-            exit
+bish() {
+    toml -V > /dev/null || source $(curl "n0s1.sh/toml")
+    case $1 in
+    '')
+        functions="$(echo "$BISH_CONFIG" | toml get_headers Functions)"
+        echo -e "#!/bin/sh\n# BISH: The BioShell\n# Generated: $(date)\n# License: MIT License\n"
+        echo -e "BISH_CONFIG = '$BISH_CONFIG'\n"
+        echo "$(for func in $functions; do type $func | tail -n +2 && echo; done)"
+        echo -e "\nbish init"
         ;;
-        #"bish")
-            #bish
-        #;;
-        "help")
-            show_help
+    'init')
+        #TODO Detect shell and load appropriate rcfile
+        #rc_path="$(echo $BISH_CONFIG | toml get bashrc_path)"
+        [[ $(awk -F: -v u="$USER" 'u==$1&&$0=$NF' /etc/passwd) = "/bin/bash" ]] && \
+        rc_path="$(echo "$BISH_CONFIG" | toml get bashrc_path)";
+        rc_path="$HOME/dotfiles/.bashrc"
+        source "$rc_path"
+        echo -e "bioshell v0.0.3";
         ;;
-        *) bish_eval
+    'fetch')
+        source "$(curl "$(echo $BISH_CONFIG | toml get "Functions.$2.remote")")"
+        ;;
+    'update')
+        echo "TODO Update"
         ;;
     esac
 }
 
-lex() {
-    echo "Lexing..."
-}
+exprq() { expr "$1" : "$2" 1>/dev/null; }
 
-parse() {
-    echo "Parsing..."
-}
+toml() {
+    parent="$(echo $3 | sed 's/\(.*\)\.\(.*\)/\1/')"
+    key="$(echo $3 | sed 's/\(.*\)\.\(.*\)/\2/')"
+    value="$4"
 
-eval() {
-    echo "Evaluating..."
-}
+    if [ $1 = "get" ]; then
+        #Global
+        if exprq "$parent" "$key"; then
+            sed -n "/\\[.*\\]/q;p" "$2" | \
+            # TODO support multiline arrays
+                sed -n "s/^\s*$key=\(.*\)/\1/p"
+        # Filter to subheading then get value
+        else
+            sed -n "/^\s*\[$parent\]/,/\[.*\]/{//!p;}" "$2" | \
+                # TODO support multiline arrays
+                sed -n "s/^\s*$key=\(.*\)/\1/p"
+        fi
 
-bish_eval() {
-    # !50..55
-    if [[ $BISH_COMMAND =~ ^\![0-9]+\.\.[0-9]+$ ]]; then
-        START="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\.\([0-9]*\)$/\1/')"
-        END="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\.\([0-9]*\)$/\2/')"
-        for i in $(eval echo "{$START..$END}"); do
-            echo "TODO Exec history cmd #$i"
-        done
-    # !50.&.55
-    elif [[ $BISH_COMMAND =~ ^\![0-9]+\.\&\.[0-9]+$ ]]; then
-        START="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\&\.\([0-9]*\)$/\1/')"
-        END="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\&\.\([0-9]*\)$/\2/')"
-        for i in $(eval echo "{$START..$END}"); do
-            echo "TODO Exec history cmd #$i &&"
-        done
-    # !50.|.55
-    elif [[ $BISH_COMMAND =~ ^\![0-9]+\.\|\.[0-9]+$ ]]; then
-        START="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\|\.\([0-9]*\)$/\1/')"
-        END="$(echo $BISH_COMMAND | sed 's/^\!\([0-9]*\)\.\|\.\([0-9]*\)$/\2/')"
-        for i in $(eval echo "{$START..$END}"); do
-            echo "TODO Exec history cmd #$i ||"
-        done
-    else
-    #TODO Catch &|& and |||
-        eval $BISH_COMMAND;
+    if [ $1 = "get_headers" ]; then
+        #Global
+            sed -n "/^\s*\[$parent\]/,/\[.*\]/{//!p;}" "$2" | \
+                # TODO support multiline arrays
+                sed -n "s/^\s*$key=\(.*\)/\1/p"
+        fi
+
+    #TODO Fix file indenting
+    elif [ $1 = "set" ]; then
+        if exprq "$parent" "$key"; then
+            updated=false
+            sed -n "/\\[.*\\]/q;p" "$2" | \
+            while read line; do
+                if exprq "$line" "$key=.*"; then
+                    echo "$key=$value";
+                    updated=true;
+                    continue;
+                fi
+                echo $line;
+            done
+            $updated || echo "$key=$value";
+            sed -n "/\\[.*\\]/,/EOF/p" "$2"
+        else
+            in_parent=false
+            # try to update value for existing header
+            cat "$2" | while read line; do
+                exprq "$line" "\\[.*\\]" && in_parent=false;
+                # Set in_parent if currently inside correct header
+                exprq "$line" "\\[$parent\\]" && in_parent=true;
+                if $in_parent; then
+                    # Write new value if existing key found
+                    if exprq "$line" "$key=.*"; then
+                        echo "$key=$value";
+                        in_parent=false;
+                        continue;
+                        # Write new value if existing key not found
+                        # before entering next header
+                    elif exprq "$line" "\\[.*\\]" && \
+                        ! exprq "$line" "\\[$parent\\]"; then
+                            echo "$key=$value";
+                            in_parent=false;
+                    fi
+                fi
+                echo $line;
+            done;
+            # If the header doesn't exist add it and the value
+            if ! grep -q "\\[$parent\\]" "$2"; then
+                # TODO Recursively look for parent headers not dump
+                # at bottom of file
+                echo "[$parent]" >> $2 && echo "$key=$value" >> $2
+                return
+            fi
+        fi
     fi
 }
 
-print_function() { type $1 | tail -n +2 && echo; }
-
-bish() {
-    echo -e '#!/bin/sh\n';
-    print_function splice;
-    print_function show_help;
-    print_function bish_read;
-    print_function init;
-    print_function process_input;
-    print_function bish_eval;
-    print_function print_function;
-    print_function bish;
-    echo 'init';
-}
-
-init
-#for file in ls: cat file
-#for file in *: cat file
-#for file in $(ls): cat file
-#for file in `ls`: cat $file
-#
-#
-#cd ~/repos/bish
-#
-#example():
-#
-#for file in * where $file not contains "#":
-#    if extension == ".sh"
-#    cat $file
-#    prompt "Edit file?" && vim $file
-#    replace -i "toma" with "hawk" in $file
-#    sed -i "s/hawk/toma/gi" $file
-#end
-#
-#for line in file in * where $file not contains "#":
-#    echo $line
-#end
-#
-#while true:
-#
-#    break
-
-
-# Quotes
-# $"[0-9]
-# echo "test"
-# echo $"0test1 $(echo $"1test2$"1)$"0
-# echo $"0test1 $(echo $"1test2 $(echo $"2test3$"2)$"1)$"0
-
-# Control Pipes
-# echo test &|&  cat
-# echo test |||  cat
-
-# REDO
-#
-# !563..565
-# becomes: !563; !564; !565;
-#
-# !563..565 > commands.bish
-# !563.&.565
-# !563.&&.565
-# !563.&|&.565
-# !563.|.565
-# !563.||.565
-# !563.|||.565
-#
-# >
-# >>
-# &>
-# &>>
-# <
-# <<
-#
-# if [ x ]; then
-# if x:
-# for x in
-# if dir not exists "~/repos/bish/":
-# if file not exists "~/repos/bish/bish":
-# if var not exists "filename"
-# if func not exists "print()":
-#
-#
-# !
-# #
-# $
-# (
-# )
-# {
-# }
-# [
-# ]
-# |
-# &
-# '
-# "
-# `
-# ;
-# .
-# +
-# -
-# /
-# \
-# *
-# <
-# >
-#
+bish init

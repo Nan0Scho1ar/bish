@@ -1,3 +1,6 @@
 [submodule "gitmanager"]
 	path = gitmanager
 	url = https://github.com/Nan0Scho1ar/gitmanager
+[submodule "n0s1.core"]
+	path = n0s1.core
+	url = https://github.com/Nan0Scho1ar/n0s1.core

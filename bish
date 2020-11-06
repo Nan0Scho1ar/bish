@@ -6,12 +6,29 @@
 # Self replicating shell script loader
 
 BISH_CONFIG='
-bashrc_path = "$HOME/dotfiles/.bashrc"
+[bash]
+rc_path = "$HOME/dotfiles/.bashrc"
 
-[Functions]
-[Functions.bish]
-[Functions.toml]
-[Functions.toml.SubFunc.exprq]
+[bish]
+home = "$HOME/.config/bish"
+
+[zsh]
+rc_path = "$HOME/dotfiles/.zshrc"
+
+# New Mutagens (functions) should be defined here
+[Mutagens]
+    [Mutagens.bish]
+        [Mutagens.bish.SubMutation.bish_transcribe]
+            remote = "n0s1.sh/bish_transcribe"
+
+    [Mutagens.n0s1.core.toml]
+        remote = "n0s1.sh/toml"
+        [Mutagens.n0s1.core.toml.SubMutation.exprq]
+            remote = "n0s1.sh/exprq"
+
+    [Mutagens.n0s1.core.exprq]
+            remote = "n0s1.sh/exprq"
+
 [State]
 '
 
@@ -19,26 +36,41 @@ bish() {
     toml -V > /dev/null || source $(curl "n0s1.sh/toml")
     case $1 in
     '')
-        functions="$(echo "$BISH_CONFIG" | toml get_headers Functions)"
+        mutagens="$(echo "$BISH_CONFIG" | toml get_headers Mutagens)"
         echo -e "#!/bin/sh\n# BISH: The BioShell\n# Generated: $(date)\n# License: MIT License\n"
         echo -e "BISH_CONFIG = '$BISH_CONFIG'\n"
-        echo "$(for func in $functions; do type $func | tail -n +2 && echo; done)"
+        for mutagen in $mutagens; do type $mutagen | tail -n +2 && echo; done
         echo -e "\nbish init"
         ;;
     'init')
-        #TODO Detect shell and load appropriate rcfile
-        #rc_path="$(echo $BISH_CONFIG | toml get bashrc_path)"
-        [[ $(awk -F: -v u="$USER" 'u==$1&&$0=$NF' /etc/passwd) = "/bin/bash" ]] && \
-        rc_path="$(echo "$BISH_CONFIG" | toml get bashrc_path)";
-        rc_path="$HOME/dotfiles/.bashrc"
+        BISH_SHELL="$(awk -F: -v u="$USER" 'u==$1&&$0=$NF' /etc/passwd) | sed 's|/bin/||'"
+        echo $BISH_SHELL
+        rc_path="$(echo "$BISH_CONFIG" | toml get "$BISH_SHELL.rc_path")";
         source "$rc_path"
+        case $BISH_SHELL in
+        'bash') echo "bash";
+            #rc_path="$HOME/dotfiles/.bashrc"
+              ;;
+        'zsh' ) echo "zsh" ;;
+           *  ) echo "sh" ;;
+        esac
         echo -e "bioshell v0.0.3";
         ;;
-    'fetch')
-        source "$(curl "$(echo $BISH_CONFIG | toml get "Functions.$2.remote")")"
+    'conf')
+        echo $BISH_CONFIG | toml "$2" "$3" "$4"
         ;;
-    'update')
-        echo "TODO Update"
+    'fetch')
+        source "$(curl "$(echo $BISH_CONFIG | toml get "Mutagens.$2.remote")")"
+        ;;
+    'mutate')
+        # TODO Check if any mutagens missing from conf
+        echo "TODO Mutate, fetch transcribe"
+        # TODO Don't double dependencies if met elsewhere
+        ;;
+    *)
+        mutation="$(echo "$BISH_CONFIG" | toml get "Mutagens.bish.SubMutation.$1"
+        mutation="$(echo "$BISH_CONFIG" | toml get "$BISH_SHELL.rc_path")";
+
         ;;
     esac
 }
@@ -46,6 +78,7 @@ bish() {
 exprq() { expr "$1" : "$2" 1>/dev/null; }
 
 toml() {
+    [ -z $1 ] && lines="$(echo "$(< /dev/stdin)")" || lines="$(cat "$1")";
     parent="$(echo $3 | sed 's/\(.*\)\.\(.*\)/\1/')"
     key="$(echo $3 | sed 's/\(.*\)\.\(.*\)/\2/')"
     value="$4"
@@ -53,19 +86,19 @@ toml() {
     if [ $1 = "get" ]; then
         #Global
         if exprq "$parent" "$key"; then
-            sed -n "/\\[.*\\]/q;p" "$2" | \
+            echo "$lines" | sed -n "/\\[.*\\]/q;p" | \
             # TODO support multiline arrays
                 sed -n "s/^\s*$key=\(.*\)/\1/p"
         # Filter to subheading then get value
         else
-            sed -n "/^\s*\[$parent\]/,/\[.*\]/{//!p;}" "$2" | \
+            echo "$lines" | sed -n "/^\s*\[$parent\]/,/\[.*\]/{//!p;}" | \
                 # TODO support multiline arrays
                 sed -n "s/^\s*$key=\(.*\)/\1/p"
         fi
 
     if [ $1 = "get_headers" ]; then
         #Global
-            sed -n "/^\s*\[$parent\]/,/\[.*\]/{//!p;}" "$2" | \
+            echo "$lines" | sed -n "/^\s*\[$parent\]/,/\[.*\]/{//!p;}" | \
                 # TODO support multiline arrays
                 sed -n "s/^\s*$key=\(.*\)/\1/p"
         fi
@@ -74,7 +107,7 @@ toml() {
     elif [ $1 = "set" ]; then
         if exprq "$parent" "$key"; then
             updated=false
-            sed -n "/\\[.*\\]/q;p" "$2" | \
+            echo "$lines" | sed -n "/\\[.*\\]/q;p" | \
             while read line; do
                 if exprq "$line" "$key=.*"; then
                     echo "$key=$value";
@@ -84,7 +117,7 @@ toml() {
                 echo $line;
             done
             $updated || echo "$key=$value";
-            sed -n "/\\[.*\\]/,/EOF/p" "$2"
+            echo "$lines" | sed -n "/\\[.*\\]/,/EOF/p"
         else
             in_parent=false
             # try to update value for existing header
@@ -109,7 +142,7 @@ toml() {
                 echo $line;
             done;
             # If the header doesn't exist add it and the value
-            if ! grep -q "\\[$parent\\]" "$2"; then
+             if ! echo "$lines" | grep -q "\\[$parent\\]"; then
                 # TODO Recursively look for parent headers not dump
                 # at bottom of file
                 echo "[$parent]" >> $2 && echo "$key=$value" >> $2

@@ -15,6 +15,8 @@ home = "$HOME/.config/bish"
 [zsh]
 rc_path = "$HOME/dotfiles/.zshrc"
 
+
+
 # New Mutagens (functions) should be defined here
 [Mutagens]
     [Mutagens.bish]
@@ -24,20 +26,17 @@ rc_path = "$HOME/dotfiles/.zshrc"
                 remote = "n0s1.sh/toml"
                 command = "toml"
                 use_existing = true
-
         [Mutagens.bish.SubMutations]
             [Mutagens.bish.SubMutations.bish_conf]
                 description = "Various tools for working with bish config"
                 remote = "n0s1.sh/bish_conf"
                 function = "bish_conf"
                 command = "bish conf"
-
             [Mutagens.bish.SubMutations.bish_transcribe]
                 description = "Write bish, config and mutations to a file"
                 remote = "n0s1.sh/bish_transcribe"
                 function = "bish_transcribe"
                 command = "bish transcribe"
-
             [Mutagens.bish.SubMutations.bish_layers]
                 description = "Load different script layers using bish"
                 remote = "n0s1.sh/bish_layers"
@@ -50,39 +49,32 @@ rc_path = "$HOME/dotfiles/.zshrc"
                 description = ""
                 remote = "n0s1.sh/toml"
                 command = "toml"
-
                 [Mutagens.n0s1.core.toml.Depends]
                     [Mutagens.n0s1.core.toml.Depends.exprq]
                         description = ""
                         remote = "n0s1.sh/exprq"
                         command = "exprq"
                         use_existing = true
-
             [Mutagens.n0s1.core.exprq]
                     description = "Evaluate regex cleanly"
                     remote = "n0s1.sh/exprq"
                     command = "exprq"
-
             [Mutagens.n0s1.core.fzy]
                     description = "Small command line fuzzy finder"
                     remote = "n0s1.sh/fzy"
                     command = "fzy"
-
             [Mutagens.n0s1.core.convert]
                     description = "Easily convert between different mediums"
                     remote = "n0s1.sh/convert"
                     command = "convert"
-
             [Mutagens.n0s1.core.extract]
                     description = "Easily extract many types of archives with one cmd"
                     remote = "n0s1.sh/extract"
                     command = "extract"
-
         [Mutagens.n0s1.git_manange]
             description = "Easily manage multiple git repositories"
             remote = "n0s1.sh/git_manange"
             command = "gm"
-
         [Mutagens.n0s1.g]
             description = "Quick shortcuts for common git commands"
             remote = "n0s1.sh/g"
@@ -146,22 +138,23 @@ bish() (
     # TODO Don't double dependencies if met elsewhere
     bish_mutate() { echo "TODO Mutate, fetch transcribe"; }
     bish_transcribe() {
+echo bang
         mutagens="$(bish conf get_headers Mutagens)"
         echo -e "#!/bin/sh\n# BISH: The BioShell\n# Generated: $(date)\n# License: MIT License\n"
-        echo -e "BISH_CONFIG = 'EOF\n${BISH_CONFIG}EOF\n"
+        echo -e "BISH_CONFIG=\$(cat << EOF\n${BISH_CONFIG}EOF\n)\n"
         for mutagen in $mutagens; do type $mutagen | tail -n +2 && echo; done
         echo -e "\nbish init"
     }
-    bish_core() {
+    bish() {
         toml -V > /dev/null || source $(curl "n0s1.sh/toml")
         [[ -z $BISH_CONFIG ]] && echo "Error, config variable not set" && return 1
         [[ -z $BISH_SHELL ]] && BISH_SHELL="$(awk -F: -v u="$USER" 'u==$1&&$0=$NF' /etc/passwd | sed 's|/bin/||')";
         [[ "$1" = "" ]] && bish_transcribe && return;
         mutagen="$(bish conf get_header_kv "command" "bish $1")";
         mutation=$(bish conf get "${mutagen}.function");
-        echo $mutation;
+        echo "$mutation $*";
     }
-    bish_core
+    bish $*
 )
 
 exprq() { expr "$1" : "$2" 1>/dev/null; }

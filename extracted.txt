@@ -1,0 +1,59 @@
+BioToolKit Foundation
+BiSh: Bioinformatics Shell
+
+Prepared for
+
+[NPO Investor]
+
+Prepared by
+
+[Christopher Mackinga & Anna Toussaint]
+
+bioinformaticsshell@gmail.com
+
+December 28, 2020
+
+About Us
+
+BioToolKit Foundation is an Australian nonprofit organization dedicated to creating an intuitive, streamlined, open source bioinformatics environment. Our organization works closely with developers, engineers and scientists worldwide to bridge gaps between existing tools in computational biology through standardized interfaces. We develop tools to unify processes across a variety of operating systems and integrate those developed by third parties into our environment as they emerge.
+
+Scope of Work
+
+The mission of this project is to develop a single, unified environment which is OS agnostic and simplifies setup and use of a system which is tailored to a bioinformatics work load. It will have a key focus on portability, allowing users to easily share system configurations to facilitate reproducible results. This will be an ongoing project, but the initial step is focused on the development of a bioinformatics shell loader which can run on top of any POSIX-compliant shell of your choosing. This will implement existing standards and specify new ones where none exists. This bioinformatics shell (BiSh) will seamlessly integrate with common bioinformatics tools. We estimate that BiSh will be established in late December 2021.
+
+
+Objectives & Timeline
+
+    Building BiSh (Christopher Mackinga)
+        Build self-replicating shell loader. February 2021
+        Integrating with existing system tools.  July 2021
+        Provide interface for third party tools to integrate with BiSh. August 2021
+        Set up hosting to allow users to run or install BiSh with a single command. August 2021
+    Integrate BiSh with common bioinformatics tools (Anna Toussaint, Christopher Mackinga)
+        Curate initial list of tools to be integrated. Continual, starting February 2021
+        Ensure syntax and functionality is consistent across a variety of hardware and operating systems. Continual, starting February 2021
+        Seamlessly integrate tools with BiSh. Continual, starting August 2021
+        Provide bridges between tools using existing interfaces where possible. Continuous, starting September 2021
+    Documentation of BiSh use (Anna Toussaint, Christopher Mackinga)
+            Write man pages explaining use. Continuous, starting March 2021
+            Write a series of example use cases.  Continuous, starting March 2021
+            Create Wiki accessible via web browser with ability for community to suggest edits. July 2021
+            Create series of demonstrational videos. Continuous, starting December 2021
+
+
+Pricing
+Serial No	Product ID	Description	Image	Quantity	Price	Sub Total	Discount	Tax	Total
+1	Human Resource (2 Employees) 2 AUD 35,000 AUD 70,000 0 % 0 AUD 70,000
+2	Travel & Accomodation 1 AUD 5,000 AUD 5,000 0 % 0 AUD 5,000
+3	 Legal Fees 1 AUD 5,000 AUD 5,000 0 % 0 AUD 5,000
+4	Domain and Hosting 1 AUD 200 AUD 200 0 % 0 AUD 200
+5	Auditing 1 AUD 1,000 AUD 1,000 0 % 0 AUD 1,000
+Total	AUD 81,200
+
+Terms & Conditions
+
+    Project Details
+    This proposal will engage [NPO Investor] (“The Volunteer”) to assist BioToolKit Foundation (“The Organization”) in its mission to develop a unified bioinformatics environment.
+
+    Obligations
+    The Volunteer will actively participate in the year-long program. Any costs or expenses incurred by The Volunteer, which have not been indicated in The Organization’s budget, will be paid for by The Volunteer.

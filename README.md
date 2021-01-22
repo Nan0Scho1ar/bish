@@ -19,6 +19,3 @@ An example of a portable bish configuration
 [link](ideas)
 Current thoughts and ideas
 
-### Setup
-[link](setup)
-Setup script

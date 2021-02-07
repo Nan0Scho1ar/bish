@@ -35,25 +35,22 @@ Objectives & Timeline
         Seamlessly integrate tools with BiSh. Continual, starting August 2021
         Provide bridges between tools using existing interfaces where possible. Continuous, starting September 2021
     Documentation of BiSh use (Anna Toussaint, Christopher Mackinga)
-            Write man pages explaining use. Continuous, starting March 2021
-            Write a series of example use cases.  Continuous, starting March 2021
-            Create Wiki accessible via web browser with ability for community to suggest edits. July 2021
-            Create series of demonstrational videos. Continuous, starting December 2021
+        Write man pages explaining use. Continuous, starting March 2021
+        Write a series of example use cases.  Continuous, starting March 2021
+        Create Wiki accessible via web browser with ability for community to suggest edits. July 2021
+        Create series of demonstrational videos. Continuous, starting December 2021
 
 
 Pricing
-Serial No	Product ID	Description	Image	Quantity	Price	Sub Total	Discount	Tax	Total
-1	Human Resource (2 Employees) 2 AUD 35,000 AUD 70,000 0 % 0 AUD 70,000
-2	Travel & Accomodation 1 AUD 5,000 AUD 5,000 0 % 0 AUD 5,000
-3	 Legal Fees 1 AUD 5,000 AUD 5,000 0 % 0 AUD 5,000
-4	Domain and Hosting 1 AUD 200 AUD 200 0 % 0 AUD 200
-5	Auditing 1 AUD 1,000 AUD 1,000 0 % 0 AUD 1,000
+Description	          Quantity	    Price	       Sub Total
+Human Resource        (2 Employees) AUD 35,000     AUD 70,000
+Travel & Accomodation 1             AUD 5,000      AUD 5,000
+Legal Fees            1             AUD 5,000      AUD 5,000
+Domain and Hosting    1             AUD 200        AUD 200
+Auditing              1             AUD 1,000      AUD 1,000
 Total	AUD 81,200
 
 Terms & Conditions
 
     Project Details
     This proposal will engage [NPO Investor] (“The Volunteer”) to assist BioToolKit Foundation (“The Organization”) in its mission to develop a unified bioinformatics environment.
-
-    Obligations
-    The Volunteer will actively participate in the year-long program. Any costs or expenses incurred by The Volunteer, which have not been indicated in The Organization’s budget, will be paid for by The Volunteer.

@@ -19,7 +19,7 @@ bish() (
         echo -e '    bish $*\n)\nbish init'
     }
     bish() {
-        toml -V > /dev/null || source $(curl "n0s1.sh/toml")
+        toml -V > /dev/null 2>&1 || $(curl -s https:/n0s1.sh/toml.sh | sed "/^\s*#/d")
         [[ -z $BISH_CONFIG ]] && echo "Error, config variable not set" && return 1
         [[ -z $BISH_SHELL ]] && BISH_SHELL="$(awk -F: -v u="$USER" 'u==$1&&$0=$NF' /etc/passwd | sed 's|/bin/||')";
         [[ "$1" = "" ]] && bish_transcribe && return;

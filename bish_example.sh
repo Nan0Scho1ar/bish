@@ -17,111 +17,117 @@ rc_path = "$HOME/dotfiles/.zshrc"
 
 
 
-# New Mutagens (functions) should be defined here
-[Mutagens]
-    [Mutagens.bish]
-        [Mutagens.bish.Depends]
-            [Mutagens.bish.Depends.toml]
+# New Genes (functions) should be defined here
+[Genes]
+    [Genes.bish]
+        [Genes.bish.Depends]
+            [Genes.bish.Depends.toml]
                 description = "Read and write toml files"
                 remote = "n0s1.sh/toml"
                 command = "toml"
                 use_existing = true
-        [Mutagens.bish.SubMutations]
-            [Mutagens.bish.SubMutations.bish_conf]
+        [Genes.bish.SubMutations]
+            [Genes.bish.SubMutations.bish_conf]
                 description = "Various tools for working with bish config"
                 remote = "n0s1.sh/bish_conf"
                 function = "bish_conf"
                 command = "bish conf"
-            [Mutagens.bish.SubMutations.bish_transcribe]
+            [Genes.bish.SubMutations.bish_transcribe]
                 description = "Write bish, config and mutations to a file"
                 remote = "n0s1.sh/bish_transcribe"
                 function = "bish_transcribe"
                 command = "bish transcribe"
-            [Mutagens.bish.SubMutations.bish_layers]
+            [Genes.bish.SubMutations.bish_layers]
                 description = "Load different script layers using bish"
                 remote = "n0s1.sh/bish_layers"
                 function = "bish_layers"
                 command = "bish layers"
 
-    [Mutagens.n0s1]
-        [Mutagens.n0s1.core]
-            [Mutagens.n0s1.core.toml]
+    [Genes.n0s1]
+        [Genes.n0s1.core]
+            [Genes.n0s1.core.toml]
                 description = ""
                 remote = "n0s1.sh/toml"
                 command = "toml"
-                [Mutagens.n0s1.core.toml.Depends]
-                    [Mutagens.n0s1.core.toml.Depends.exprq]
+                [Genes.n0s1.core.toml.Depends]
+                    [Genes.n0s1.core.toml.Depends.exprq]
                         description = ""
                         remote = "n0s1.sh/exprq"
                         command = "exprq"
                         use_existing = true
-            [Mutagens.n0s1.core.exprq]
+            [Genes.n0s1.core.exprq]
                     description = "Evaluate regex cleanly"
                     remote = "n0s1.sh/exprq"
                     command = "exprq"
-            [Mutagens.n0s1.core.fzy]
+            [Genes.n0s1.core.fzy]
                     description = "Small command line fuzzy finder"
                     remote = "n0s1.sh/fzy"
                     command = "fzy"
-            [Mutagens.n0s1.core.convert]
+            [Genes.n0s1.core.convert]
                     description = "Easily convert between different mediums"
                     remote = "n0s1.sh/convert"
                     command = "convert"
-            [Mutagens.n0s1.core.extract]
+            [Genes.n0s1.core.extract]
                     description = "Easily extract many types of archives with one cmd"
                     remote = "n0s1.sh/extract"
                     command = "extract"
-        [Mutagens.n0s1.git_manange]
+        [Genes.n0s1.git_manange]
             description = "Easily manage multiple git repositories"
             remote = "n0s1.sh/git_manange"
             command = "gm"
-        [Mutagens.n0s1.g]
+        [Genes.n0s1.g]
             description = "Quick shortcuts for common git commands"
             remote = "n0s1.sh/g"
             command = "g"
 
-    [Mutagens.z]
+    [Genes.z]
         description = "Quickly navigate to recent/commonly accessed directories"
+        remote = "n0s1.sh/z"
+        command = "z"
+
+# TODO Create this
+    [Genes.bliss]
+        description = "Bioshell LISp Syntax"
         remote = "n0s1.sh/z"
         command = "z"
 
 [Layers]
     [Layers.Normal]
-        [Layers.Normal.Mutagens]
-            [Layers.Normal.Mutagens.bish]
+        [Layers.Normal.Genes]
+            [Layers.Normal.Genes.bish]
                 load=true
 
-                [Layers.Normal.Mutagens.bish.SubMutations]
-                    [Layers.Normal.Mutagens.bish.SubMutations.bish_conf]
+                [Layers.Normal.Genes.bish.SubMutations]
+                    [Layers.Normal.Genes.bish.SubMutations.bish_conf]
                         load=true
 
-                    [Layers.Normal.Mutagens.bish.SubMutations.bish_transcribe]
+                    [Layers.Normal.Genes.bish.SubMutations.bish_transcribe]
                         load=true
 
-                    [Layers.Normal.Mutagens.bish.SubMutations.bish_layers]
+                    [Layers.Normal.Genes.bish.SubMutations.bish_layers]
                         load=true
 
-            [Layers.Normal.Mutagens.n0s1]
-                [Layers.Normal.Mutagens.n0s1.core]
-                    [Layers.Normal.Mutagens.n0s1.core.toml]
+            [Layers.Normal.Genes.n0s1]
+                [Layers.Normal.Genes.n0s1.core]
+                    [Layers.Normal.Genes.n0s1.core.toml]
                         load=true
 
-                    [Layers.Normal.Mutagens.n0s1.core.exprq]
+                    [Layers.Normal.Genes.n0s1.core.exprq]
                         load=true
 
-                    [Layers.Normal.Mutagens.n0s1.core.fzy]
+                    [Layers.Normal.Genes.n0s1.core.fzy]
                         load=true
 
-                    [Layers.Normal.Mutagens.n0s1.core.convert]
+                    [Layers.Normal.Genes.n0s1.core.convert]
                         load=true
 
-                [Layers.Normal.Mutagens.n0s1.git_manange]
+                [Layers.Normal.Genes.n0s1.git_manange]
                     load=true
 
-                [Layers.Normal.Mutagens.n0s1.g]
+                [Layers.Normal.Genes.n0s1.g]
                     load=true
 
-            [Layers.Normal.Mutagens.z]
+            [Layers.Normal.Genes.z]
                 load=true
 
 # You should not need to touch this.
@@ -133,16 +139,16 @@ EOF
 bish() (
     bish_init() { source "$(bish conf get "$BISH_SHELL.rc_path")" && echo -e "bioshell v0.0.4"; }
     bish_conf() { echo $BISH_CONFIG | toml "$2" "$3" "$4"; }
-    bish_fetch() { source "$(curl "$(bish conf get "Mutagens.$2.remote")")"; }
-    # TODO Check if any mutagens missing from conf
+    bish_fetch() { source "$(curl "$(bish conf get "Genes.$2.remote")")"; }
+    # TODO Check if any genes missing from conf
     # TODO Don't double dependencies if met elsewhere
     bish_mutate() { echo "TODO Mutate, fetch transcribe"; }
     bish_transcribe() {
 echo bang
-        mutagens="$(bish conf get_headers Mutagens)"
+        genes="$(bish conf get_headers Genes)"
         echo -e "#!/bin/sh\n# BISH: The BioShell\n# Generated: $(date)\n# License: MIT License\n"
         echo -e "BISH_CONFIG=\$(cat << EOF\n${BISH_CONFIG}EOF\n)\n"
-        for mutagen in $mutagens; do type $mutagen | tail -n +2 && echo; done
+        for gene in $genes; do type $gene | tail -n +2 && echo; done
         echo -e "\nbish init"
     }
     bish() {
@@ -150,8 +156,8 @@ echo bang
         [[ -z $BISH_CONFIG ]] && echo "Error, config variable not set" && return 1
         [[ -z $BISH_SHELL ]] && BISH_SHELL="$(awk -F: -v u="$USER" 'u==$1&&$0=$NF' /etc/passwd | sed 's|/bin/||')";
         [[ "$1" = "" ]] && bish_transcribe && return;
-        mutagen="$(bish conf get_header_kv "command" "bish $1")";
-        mutation=$(bish conf get "${mutagen}.function");
+        gene="$(bish conf get_header_kv "command" "bish $1")";
+        mutation=$(bish conf get "${gene}.function");
         echo "$mutation $*";
     }
     bish $*

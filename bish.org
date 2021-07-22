@@ -1,3 +1,8 @@
+#+TITLE: Bish
+Bish the bioshell
+
+* Bish header
+#+begin_src sh :tangle bish.sh
 #!/bin/sh
 # BISH: The BioShell
 # Author: Nan0Scho1ar (Christopher Mackinga)
@@ -5,8 +10,14 @@
 # License: MIT License
 # Self replicating modular shell script loader
 
+#+end_src
+* Bish config
+** Begin config
+#+begin_src sh :tangle bish.sh
 BISH_CONFIG=$(cat << EOF
-
+#+end_src
+** Global scope variables
+#+begin_src sh :tangle bish.sh
 [bash]
 rc_path = "$HOME/dotfiles/.bashrc"
 
@@ -16,6 +27,10 @@ home = "$HOME/.config/bish"
 [zsh]
 rc_path = "$HOME/dotfiles/.zshrc"
 
+#+end_src
+** Genes
+*** bish genes
+#+begin_src sh :tangle bish.sh
 # New Genes (functions) should be defined here
 [Genes]
     [Genes.bish]
@@ -42,6 +57,9 @@ rc_path = "$HOME/dotfiles/.zshrc"
                 function = "bish_layers"
                 command = "bish layers"
 
+#+end_src
+*** n0s1 genes
+#+begin_src sh :tangle bish.sh
     [Genes.n0s1]
         [Genes.n0s1.core]
             [Genes.n0s1.core.toml]
@@ -79,19 +97,31 @@ rc_path = "$HOME/dotfiles/.zshrc"
             remote = "n0s1.sh/g"
             command = "g"
 
+#+end_src
+*** Z genes
+#+begin_src sh :tangle bish.sh
     [Genes.z]
         description = "Quickly navigate to recent/commonly accessed directories"
         remote = "n0s1.sh/z"
         command = "z"
 
+#+end_src
+*** Bliss genes
+#+begin_src sh :tangle bish.sh
 # TODO Create this
     [Genes.bliss]
         description = "Bioshell LISp Syntax"
         remote = "n0s1.sh/z"
         command = "z"
 
+#+end_src
+** Layers
+*** Begin layers
+#+begin_src sh :tangle bish.sh
 [Layers]
-
+#+end_src
+*** Normal layer
+#+begin_src sh :tangle bish.sh
     [Layers.Normal]
         [Layers.Normal.Genes]
             [Layers.Normal.Genes.bish]
@@ -130,13 +160,23 @@ rc_path = "$HOME/dotfiles/.zshrc"
             [Layers.Normal.Genes.z]
                 load=true
 
+#+end_src
+** State
+#+begin_src sh :tangle bish.sh
 # You should not need to touch this.
 [State]
 
+#+end_src
+** End config
+#+begin_src sh :tangle bish.sh
 # You should not need to touch this.
 EOF
 )
 
+#+end_src
+* bish
+Here is the source for the bish itself, as you can see it is rather small.
+#+begin_src sh :tangle bish.sh
 bish() (
     bish_init() { source "$(bish conf get "$BISH_SHELL.rc_path")" && echo -e "bioshell v0.0.4"; }
     bish_conf() { echo $BISH_CONFIG | toml "$2" "$3" "$4"; }
@@ -164,8 +204,16 @@ echo bang
     bish $*
 )
 
+#+end_src
+
+* exprq
+exprq is essentially just syntactic sugar for expr. it allows you to query a regex.
+#+begin_src sh :tangle bish.sh
 exprq() { expr "$1" : "$2" 1>/dev/null; }
 
+#+end_src
+* TOML
+#+begin_src sh :tangle bish.sh
 toml() {
     case $1 in
         '-V') echo "toml v0.0.2" ;;
@@ -244,5 +292,9 @@ toml() {
         fi
     fi
 }
-
+#+end_src
+* Bish init call
+The final call in the file is to ~bish init~
+#+begin_src sh :tangle bish.sh
 bish init
+#+end_src

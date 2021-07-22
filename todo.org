@@ -1,0 +1,8 @@
+#+TITLE: Todo
+* BioShell
+- [ ] Fix bugs in script.
+- [ ] Write documentation for functions.
+- [ ] Generate manpage.
+- [ ] Develop test cases.
+* Bioinformatics Shell
+- [ ]  Compile basal scripts for the shell.

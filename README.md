@@ -3,7 +3,7 @@
 
 ### BISH Explained
 [link](bish.org)
-An example explanation of bish.sh
+An small explanation of bish.sh
 
 ### BISH
 [link](bish.sh)

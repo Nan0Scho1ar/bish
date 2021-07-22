@@ -1,5 +1,5 @@
 #+TITLE: Bish
-Bish the bioshell
+A general explanation of bish the bioshell.
 
 * Bish header
 #+begin_src sh :tangle bish.sh
@@ -213,6 +213,7 @@ exprq() { expr "$1" : "$2" 1>/dev/null; }
 
 #+end_src
 * TOML
+Since the config file is written in toml ~bish config~ needs a gene for working with toml.
 #+begin_src sh :tangle bish.sh
 toml() {
     case $1 in

@@ -144,7 +144,7 @@ EOF
 )"
 
 bish() (
-    bish_init() { source "$(bish_conf get "$BISH_SHELL.rc_path")" || echo "source failed: \$BISH_SHELL not set"; echo -e "bioshell v0.0.4"; }
+    bish_init() { source "$(bish_conf get "$BISH_SHELL.rc_path")" || echo "source failed: \$BISH_SHELL not set"; echo -e "bioshell v0.2.1"; }
                                         #TODO Fix sh version
     bish_conf() { echo "$BISH_CONFIG" | toml.py "$1" "$2" "$3"; }
     bish_fetch() { source "$(curl "$(bish_conf get "Genes.$2.remote")")"; }

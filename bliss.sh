@@ -1552,7 +1552,7 @@ _fref "remove-hashbang" _remove_hashbang
 _fref "last" _last
 
 REP "(def! load-file-without-hashbang (fn* (f) (eval (read-string (str \"(do \" (remove-hashbang (slurp f) ) \"\nnil)\")))))"
-read -d "" __FLECK__REPCAPTURE << __FLECK__INLINEMALFILE
+read -d "" __BLISS__REPCAPTURE << __BLISS__INLINEMALFILE
 ;; aliases for common clojure names to mal builtins
 ;; NOTE: this is a hack
 
@@ -1611,10 +1611,9 @@ read -d "" __FLECK__REPCAPTURE << __FLECK__INLINEMALFILE
 (def! reduce (fn* (f init xs)
   (if (empty? xs) init (reduce f (f init (first xs)) (rest xs)))))
 
-__FLECK__INLINEMALFILE
-REP "(do ${__FLECK__REPCAPTURE})";
-REP "(def! *fleck-revision* \"24461e38\")"
-[[ "${BASH_SOURCE[0]}" != "${0}" ]] && _fleck_sourced=1 || _fleck_sourced=0
+__BLISS__INLINEMALFILE
+REP "(do ${__BLISS__REPCAPTURE})";
+REP "(def! *bliss-revision* \"24461e38\")"
 
 # load/run file from command line (then exit)
 if [[ "${1}" ]]; then
@@ -1624,7 +1623,7 @@ fi
 
 # repl loop
 if [[ -t 0 ]]; then
-  REP "(println (str \"Fleck \" *fleck-revision*))"
+  REP "(println (str \"Bliss \" *bliss-revision*))"
   while true; do
     READLINE "user> " || exit "$?"
     [[ "${r}" ]] && REP "(do ${r})" && echo "${r}"

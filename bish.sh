@@ -1,20 +1,20 @@
-#!/bin/sh
+#!/bin/bash
 # BISH: The BioShell
 # Author: Nan0Scho1ar (Christopher Mackinga)
 # Created: 07/10/2020
-# License: MIT License
+# License: GPL v3
 # Self replicating modular shell script loader
 
-BISH_CONFIG=$(cat << EOF
+BISH_CONFIG="$(cat << EOF
 
 [bash]
-rc_path = "$HOME/dotfiles/.bashrc"
+rc_path = "$HOME/repos/me/dotfiles/.bashrc"
 
 [bish]
 home = "$HOME/.config/bish"
 
 [zsh]
-rc_path = "$HOME/dotfiles/.zshrc"
+rc_path = "$HOME/repos/me/dotfiles/.zshrc"
 
 # New Genes (functions) should be defined here
 [Genes]
@@ -84,14 +84,12 @@ rc_path = "$HOME/dotfiles/.zshrc"
         remote = "n0s1.sh/z"
         command = "z"
 
-# TODO Create this
     [Genes.bliss]
         description = "Bioshell LISp Syntax"
-        remote = "n0s1.sh/z"
-        command = "z"
+        remote = "bish.sh/bliss"
+        command = "bliss"
 
 [Layers]
-
     [Layers.Normal]
         [Layers.Normal.Genes]
             [Layers.Normal.Genes.bish]
@@ -130,53 +128,68 @@ rc_path = "$HOME/dotfiles/.zshrc"
             [Layers.Normal.Genes.z]
                 load=true
 
+            [Layers.Normal.Genes.bliss]
+                load=true
+
 # You should not need to touch this.
 [State]
+    layer="Normal"
 
-# You should not need to touch this.
 EOF
-)
+)"
 
 bish() (
-    bish_init() { source "$(bish conf get "$BISH_SHELL.rc_path")" && echo -e "bioshell v0.0.4"; }
-    bish_conf() { echo $BISH_CONFIG | toml "$2" "$3" "$4"; }
-    bish_fetch() { source "$(curl "$(bish conf get "Genes.$2.remote")")"; }
+    bish_init() { source "$(bish_conf get "$BISH_SHELL.rc_path")" || echo "source failed: \$BISH_SHELL not set"; echo -e "bioshell v0.0.4"; }
+    bish_conf() { echo "$BISH_CONFIG" | toml.py "$1" "$2" "$3"; }
+    bish_fetch() { source "$(curl "$(bish_conf get "Genes.$2.remote")")"; }
     # TODO Check if any genes missing from conf
     # TODO Don't double dependencies if met elsewhere
     bish_mutate() { echo "TODO Mutate, fetch transcribe"; }
     bish_transcribe() {
-echo bang
-        genes="$(bish conf get_headers Genes)"
-        echo -e "#!/bin/sh\n# BISH: The BioShell\n# Generated: $(date)\n# License: MIT License\n"
+        genes="$(bish_conf get_headers Genes)"
+        echo -e "#!/bin/sh\n# BISH: The BioShell\n# Generated: $(date)\n# License: GPL v3\n"
         echo -e "BISH_CONFIG=\$(cat << EOF\n${BISH_CONFIG}EOF\n)\n"
         for gene in $genes; do type $gene | tail -n +2 && echo; done
         echo -e "\nbish init"
     }
-    bish() {
+    bish_run() {
         toml -V > /dev/null || source $(curl "n0s1.sh/toml")
         [[ -z $BISH_CONFIG ]] && echo "Error, config variable not set" && return 1
         [[ -z $BISH_SHELL ]] && BISH_SHELL="$(awk -F: -v u="$USER" 'u==$1&&$0=$NF' /etc/passwd | sed 's|/bin/||')";
-        [[ "$1" = "" ]] && bish_transcribe && return;
-        gene="$(bish conf get_header_kv "command" "bish $1")";
-        mutation=$(bish conf get "${gene}.function");
-        echo "$mutation $*";
+        case "$1" in
+            "transcribe") bish_transcribe;;
+            "init") bish_init;;
+            "config") bish_conf $*;;
+            "mutate") bish_mutate $*;;
+            "fetch") bish_fetch $*;;
+            *) echo "Unknown option";;
+        esac
+        #gene="$(bish_conf get_header_kv "command" "bish $1")";
+        #mutation=$(bish_conf get "${gene}.function");
+        #echo "$mutation $*";
     }
-    bish $*
+    if [ $# -eq 0 ]
+    then
+        bish_run transcribe
+    else
+        bish_run $*
+    fi
 )
 
 exprq() { expr "$1" : "$2" 1>/dev/null; }
 
+#TODO Write this in a sane way (temp replaced with toml.py)
 toml() {
     case $1 in
         '-V') echo "toml v0.0.2" ;;
-        '') lines="$(echo "$(< /dev/stdin)")" ;;
-        *)  lines="$(cat "$1")" ;;
+        *) lines="$(echo "$(< /dev/stdin)")" ;;
+            #lines="$(cat "$1")" ;;
     esac
     parent="$(echo $3 | sed 's/\(.*\)\.\(.*\)/\1/')"
     key="$(echo $3 | sed 's/\(.*\)\.\(.*\)/\2/')"
     value="$4"
-
     if [ $1 = "get" ]; then
+        echo "$lines"
         #Global
         if exprq "$parent" "$key"; then
             echo "$lines" | sed -n "/\\[.*\\]/q;p" | \

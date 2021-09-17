@@ -19,6 +19,9 @@ rc_path = "$HOME/repos/me/dotfiles/.zshrc"
 # New Genes (functions) should be defined here
 [Genes]
     [Genes.bish]
+            description = "Bish the BioShell"
+            remote = "bish.sh/bish.sh"
+            command = "bish"
         [Genes.bish.Depends]
             [Genes.bish.Depends.toml]
                 description = "Read and write toml files"
@@ -151,7 +154,7 @@ bish() (
     bish_transcribe() {
         genes="$(bish_conf get_headers Genes | sed -n '/Depends/d;/SubMutations/d;s/.*\.command="\(.*\)"/\1/p')"
         echo -e "#!/bin/sh\n# BISH: The BioShell\n# Generated: $(date)\n# License: GPL v3\n"
-        echo -e "BISH_CONFIG=\$(cat << EOF\n${BISH_CONFIG}\nEOF\n)\"\n"
+        echo -e "BISH_CONFIG=\"\$(cat << EOF\n${BISH_CONFIG}\nEOF\n)\"\n"
         for gene in $genes; do type $gene | tail -n +2 && echo; done
         echo -e "\nbish init"
     }
@@ -161,19 +164,19 @@ bish() (
         [[ -z $BISH_CONFIG ]] && echo "Error, config variable not set" && return 1
         [[ -z $BISH_SHELL ]] && BISH_SHELL="$(awk -F: -v u="$USER" 'u==$1&&$0=$NF' /etc/passwd | sed 's|/bin/||')";
         case "$1" in
-            "transcribe") bish_transcribe ;;
+            "transcribe") bish_transcribe 2>/dev/null ;;
             "errors") bish_transcribe 1>/dev/null ;;
             "init") bish_init ;;
-            "config") bish_conf $* ;;
-            "mutate") bish_mutate $* ;;
-            "fetch") bish_fetch $* ;;
+            "config") shift; bish_conf $* ;;
+            "mutate") shift; bish_mutate $* ;;
+            "fetch") shift; bish_fetch $* ;;
             *) echo "Unknown option";;
         esac
         #gene="$(bish_conf get_header_kv "command" "bish $1")";
         #mutation=$(bish_conf get "${gene}.function");
         #echo "$mutation $*";
     }
-    if [ $# -eq 0 ]; then bish_transcribe
+    if [ $# -eq 0 ]; then bish_transcribe 2>/dev/null
     else
         bish_run $*
     fi

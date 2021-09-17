@@ -90,6 +90,7 @@ rc_path = "$HOME/repos/me/dotfiles/.zshrc"
         command = "bliss"
 
 [Layers]
+
     [Layers.Normal]
         [Layers.Normal.Genes]
             [Layers.Normal.Genes.bish]
@@ -135,6 +136,7 @@ rc_path = "$HOME/repos/me/dotfiles/.zshrc"
 [State]
     layer="Normal"
 
+# Do not change this
 EOF
 )"
 

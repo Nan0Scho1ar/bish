@@ -167,7 +167,7 @@ rc_path = "$HOME/repos/me/dotfiles/.zshrc"
 #+end_src
 ** End config
 #+begin_src sh :tangle bish.sh
-# You should not need to touch this.
+# Do not change this
 EOF
 )"
 #+end_src

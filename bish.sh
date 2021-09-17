@@ -140,37 +140,38 @@ EOF
 
 bish() (
     bish_init() { source "$(bish_conf get "$BISH_SHELL.rc_path")" || echo "source failed: \$BISH_SHELL not set"; echo -e "bioshell v0.0.4"; }
+                                        #TODO Fix sh version
     bish_conf() { echo "$BISH_CONFIG" | toml.py "$1" "$2" "$3"; }
     bish_fetch() { source "$(curl "$(bish_conf get "Genes.$2.remote")")"; }
     # TODO Check if any genes missing from conf
     # TODO Don't double dependencies if met elsewhere
     bish_mutate() { echo "TODO Mutate, fetch transcribe"; }
     bish_transcribe() {
-        genes="$(bish_conf get_headers Genes)"
+        genes="$(bish_conf get_headers Genes | sed -n '/Depends/d;/SubMutations/d;s/.*\.command="\(.*\)"/\1/p')"
         echo -e "#!/bin/sh\n# BISH: The BioShell\n# Generated: $(date)\n# License: GPL v3\n"
-        echo -e "BISH_CONFIG=\$(cat << EOF\n${BISH_CONFIG}EOF\n)\n"
+        echo -e "BISH_CONFIG=\$(cat << EOF\n${BISH_CONFIG}\nEOF\n)\"\n"
         for gene in $genes; do type $gene | tail -n +2 && echo; done
         echo -e "\nbish init"
     }
     bish_run() {
+        #TODO Fix sh version
         toml -V > /dev/null || source $(curl "n0s1.sh/toml")
         [[ -z $BISH_CONFIG ]] && echo "Error, config variable not set" && return 1
         [[ -z $BISH_SHELL ]] && BISH_SHELL="$(awk -F: -v u="$USER" 'u==$1&&$0=$NF' /etc/passwd | sed 's|/bin/||')";
         case "$1" in
-            "transcribe") bish_transcribe;;
-            "init") bish_init;;
-            "config") bish_conf $*;;
-            "mutate") bish_mutate $*;;
-            "fetch") bish_fetch $*;;
+            "transcribe") bish_transcribe ;;
+            "errors") bish_transcribe 1>/dev/null ;;
+            "init") bish_init ;;
+            "config") bish_conf $* ;;
+            "mutate") bish_mutate $* ;;
+            "fetch") bish_fetch $* ;;
             *) echo "Unknown option";;
         esac
         #gene="$(bish_conf get_header_kv "command" "bish $1")";
         #mutation=$(bish_conf get "${gene}.function");
         #echo "$mutation $*";
     }
-    if [ $# -eq 0 ]
-    then
-        bish_run transcribe
+    if [ $# -eq 0 ]; then bish_transcribe
     else
         bish_run $*
     fi
@@ -204,10 +205,10 @@ toml() {
 
     if [ $1 = "get_headers" ]; then
         #Global
-            echo "$lines" | sed -n "/^\s*\[$parent\]/,/\[.*\]/{//!p;}" | \
-                # TODO support multiline arrays
-                sed -n "s/^\s*$key=\(.*\)/\1/p"
-        fi
+        echo "$lines" | sed -n "/^\s*\[$parent\]/,/\[.*\]/{//!p;}" | \
+            # TODO support multiline arrays
+            sed -n "s/^\s*$key=\(.*\)/\1/p"
+    fi
 
     #TODO Fix file indenting
     elif [ $1 = "set" ]; then

@@ -170,6 +170,7 @@ rc_path = "$HOME/repos/me/dotfiles/.zshrc"
 # You should not need to touch this.
 EOF
 )"
+#+end_src
 * bish
 Here is the source for the bish itself, as you can see it is rather small.
 #+begin_src sh :tangle bish.sh

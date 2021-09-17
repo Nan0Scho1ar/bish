@@ -229,13 +229,12 @@ This is currently broken, and I'm using toml.py temporarily instead.
 toml() {
     case $1 in
         '-V') echo "toml v0.0.2" ;;
-        '') lines="$(echo "$(< /dev/stdin)")" ;;
-        *)  lines="$(cat "$1")" ;;
+        *) lines="$(echo "$(< /dev/stdin)")" ;;
+            #lines="$(cat "$1")" ;;
     esac
     parent="$(echo $3 | sed 's/\(.*\)\.\(.*\)/\1/')"
     key="$(echo $3 | sed 's/\(.*\)\.\(.*\)/\2/')"
     value="$4"
-
     if [ $1 = "get" ]; then
         #Global
         if exprq "$parent" "$key"; then
@@ -251,10 +250,10 @@ toml() {
 
     if [ $1 = "get_headers" ]; then
         #Global
-            echo "$lines" | sed -n "/^\s*\[$parent\]/,/\[.*\]/{//!p;}" | \
-                # TODO support multiline arrays
-                sed -n "s/^\s*$key=\(.*\)/\1/p"
-        fi
+        echo "$lines" | sed -n "/^\s*\[$parent\]/,/\[.*\]/{//!p;}" | \
+            # TODO support multiline arrays
+            sed -n "s/^\s*$key=\(.*\)/\1/p"
+    fi
 
     #TODO Fix file indenting
     elif [ $1 = "set" ]; then

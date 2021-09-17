@@ -190,7 +190,6 @@ toml() {
     key="$(echo $3 | sed 's/\(.*\)\.\(.*\)/\2/')"
     value="$4"
     if [ $1 = "get" ]; then
-        echo "$lines"
         #Global
         if exprq "$parent" "$key"; then
             echo "$lines" | sed -n "/\\[.*\\]/q;p" | \

@@ -144,15 +144,14 @@ EOF
 )"
 
 bish() (
-    bish_init() { source "$(bish_conf get "$BISH_SHELL.rc_path")" || echo "source failed: \$BISH_SHELL not set"; echo -e "bioshell v0.2.1"; }
-                                        #TODO Fix sh version
-    bish_conf() { echo "$BISH_CONFIG" | toml.py "$1" "$2" "$3"; }
-    bish_fetch() { source "$(curl "$(bish_conf get "Genes.$2.remote")")"; }
+    bish_init() { source "$(bish_conf get_value "$BISH_SHELL.rc_path")" || echo "source failed: \$BISH_SHELL not set"; echo -e "bioshell v0.3.1"; }
+    bish_conf() { echo "$BISH_CONFIG" | toml "$1" "$2" "$3"; }
+    bish_fetch() { source "$(curl "$(bish_conf get_value "Genes.$2.remote")")"; }
     # TODO Check if any genes missing from conf
     # TODO Don't double dependencies if met elsewhere
     bish_mutate() { echo "TODO Mutate, fetch transcribe"; }
     bish_transcribe() {
-        genes="$(bish_conf get_headers Genes | sed -n '/Depends/d;/SubMutations/d;s/.*\.command="\(.*\)"/\1/p')"
+        genes="$(bish_conf get Genes | sed -n '/Depends/d;/SubMutations/d;s/.*\.command="\(.*\)"/\1/p')"
         echo -e "#!/bin/sh\n# BISH: The BioShell\n# Generated: $(date)\n# License: GPL v3\n"
         echo -e "BISH_CONFIG=\"\$(cat << EOF\n${BISH_CONFIG}\nEOF\n)\"\n"
         for gene in $genes; do type $gene | tail -n +2 && echo; done
@@ -172,8 +171,8 @@ bish() (
             "fetch") shift; bish_fetch $* ;;
             *) echo "Unknown option";;
         esac
-        #gene="$(bish_conf get_header_kv "command" "bish $1")";
-        #mutation=$(bish_conf get "${gene}.function");
+        #gene="$(bish_conf get "command" "bish $1")";
+        #mutation=$(bish_conf get_value "${gene}.function");
         #echo "$mutation $*";
     }
     if [ $# -eq 0 ]; then bish_transcribe 2>/dev/null
@@ -184,83 +183,53 @@ bish() (
 
 exprq() { expr "$1" : "$2" 1>/dev/null; }
 
-#TODO Write this in a sane way (temp replaced with toml.py)
 toml() {
-    case $1 in
-        '-V') echo "toml v0.0.2" ;;
-        *) lines="$(echo "$(< /dev/stdin)")" ;;
-            #lines="$(cat "$1")" ;;
-    esac
-    parent="$(echo $3 | sed 's/\(.*\)\.\(.*\)/\1/')"
-    key="$(echo $3 | sed 's/\(.*\)\.\(.*\)/\2/')"
-    value="$4"
-    if [ $1 = "get" ]; then
-        #Global
-        if exprq "$parent" "$key"; then
-            echo "$lines" | sed -n "/\\[.*\\]/q;p" | \
-            # TODO support multiline arrays
-                sed -n "s/^\s*$key=\(.*\)/\1/p"
-        # Filter to subheading then get value
-        else
-            echo "$lines" | sed -n "/^\s*\[$parent\]/,/\[.*\]/{//!p;}" | \
-                # TODO support multiline arrays
-                sed -n "s/^\s*$key=\(.*\)/\1/p"
-        fi
+    flatten() {
+        comment_regex="^\s*#"
+        header_regex="\s*\[.*\]"
+        value_regex="\s*.*=.*"
+        extract_header="s/\[//g; s/\]//g; s/ //g; s/\t//g; s/\n//g"
+        extract_value="s/^\s*//; s/\t//g; s/\n//; s/ =/=/; s/= /=/"
 
-    if [ $1 = "get_headers" ]; then
-        #Global
-        echo "$lines" | sed -n "/^\s*\[$parent\]/,/\[.*\]/{//!p;}" | \
-            # TODO support multiline arrays
-            sed -n "s/^\s*$key=\(.*\)/\1/p"
-    fi
-
-    #TODO Fix file indenting
-    elif [ $1 = "set" ]; then
-        if exprq "$parent" "$key"; then
-            updated=false
-            echo "$lines" | sed -n "/\\[.*\\]/q;p" | \
-            while read line; do
-                if exprq "$line" "$key=.*"; then
-                    echo "$key=$value";
-                    updated=true;
-                    continue;
-                fi
-                echo $line;
-            done
-            $updated || echo "$key=$value";
-            echo "$lines" | sed -n "/\\[.*\\]/,/EOF/p"
-        else
-            in_parent=false
-            # try to update value for existing header
-            cat "$2" | while read line; do
-                exprq "$line" "\\[.*\\]" && in_parent=false;
-                # Set in_parent if currently inside correct header
-                exprq "$line" "\\[$parent\\]" && in_parent=true;
-                if $in_parent; then
-                    # Write new value if existing key found
-                    if exprq "$line" "$key=.*"; then
-                        echo "$key=$value";
-                        in_parent=false;
-                        continue;
-                        # Write new value if existing key not found
-                        # before entering next header
-                    elif exprq "$line" "\\[.*\\]" && \
-                        ! exprq "$line" "\\[$parent\\]"; then
-                            echo "$key=$value";
-                            in_parent=false;
-                    fi
-                fi
-                echo $line;
-            done;
-            # If the header doesn't exist add it and the value
-             if ! echo "$lines" | grep -q "\\[$parent\\]"; then
-                # TODO Recursively look for parent headers not dump
-                # at bottom of file
-                echo "[$parent]" >> $2 && echo "$key=$value" >> $2
-                return
+        parent=""
+        while IFS= read -r line; do
+            if [[ $line =~ $comment_regex ]]; then
+                continue
+            elif [[ $line =~ $header_regex ]]; then
+                parent=$(sed "$extract_header" <<< "$line")
+            elif [[ $line =~ $value_regex ]]; then
+                echo "$parent.$(sed "$extract_value" <<< "$line")"
             fi
-        fi
-    fi
+        done < <(cat /dev/stdin)
+    }
+
+    #Returns the first value which matches the header
+    get_value() {
+        match="$1=.*"
+        while IFS= read -r line; do
+            if [[ $line =~ $match ]]; then
+                sed "s/^.*=//" <<< "$line" | tr -d '"'
+                break
+            fi
+        done < <(cat /dev/stdin | flatten)
+    }
+
+    # Returns all headers and values matching the input
+    get() {
+        match="^$1.*"
+        while IFS= read -r line; do
+            if [[ $line =~ $match ]]; then
+                sed "s/^\(.*\)=.*/\1/" <<< "$line"
+            fi
+        done < <(cat /dev/stdin | flatten)
+    }
+
+    case "$1" in
+        "get") cat /dev/stdin | get "$2" ;;
+        "get_value") cat /dev/stdin | get_value "$2" ;;
+        "-V") echo "toml: version 0.7.1" ;;
+        *) echo "Error: Unknown option";;
+    esac
 }
 
 bish init

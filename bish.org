@@ -1,7 +1,35 @@
 #+TITLE: Bish
 A general explanation of bish the bioshell.
 
+Here is a list of things which bish is:
+ - Bish is a shell script loader.
+   If it was in your config yesterday, it should still be there today.
+ - Bish is modular.
+   Bish itself is a single small module which holds all the other pieces together like glue.
+ - Bish is extensible.
+   Simply add an entry to your BISH_CONFIG and ensure the script is sourced, so bish knows to include it.
+ - Bish is portable.
+   The entire reason it exists is because I got tired of trying to reproduce my environment across multiple machines.
+ - Bish is declarative.
+   So you can focus on what functionality to include in your configuration rather than focusing on ensuring it's included.
+ - Bish is self modifying.
+   While self modifying code can be painful to work with in some circumstances, this implementation makes it easy to see
+   what has occured in each step of the process. The ability to self modify and include new functionality as part of its source
+   is what makes it both powerful and portable.
+ - Bish is a quine.
+   I could say something like "It's a feature for debuging" but the real reason is that quines are cool.
+
+Here is a list of things which bish isn't:
+ - Bish is not fully documented.
+   (Perhaps you can help).
+ - Bish is not limited to the field of Bioinformatics.
+   This is just the use case which spawned it's existence.
+ - Bish is not a replacement for your package managers.
+   It can however, play quite nicely with them.
+
+
 * Bish header
+Every good file needs a good file header
 #+begin_src sh :tangle bish.sh
 #!/bin/bash
 # BISH: The BioShell
@@ -11,11 +39,20 @@ A general explanation of bish the bioshell.
 # Self replicating modular shell script loader
 #+end_src
 * Bish config
+The bish config. Possibly the single most important aspect of the bish environment.
+If all goes well the majority of your time interacting with bish should be tinkering with this config.
+Hopefully this is as human readable and straightforward as possible so that shouldn't be much time at all.
+(If you can think of ways to improve it let us know)
 ** Begin config
+The bish config could be it's own file but it's easier to make it portable if it gets lumped in with the rest of the shell script.
+Then you only have a single file to worry about.
 #+begin_src sh :tangle bish.sh
 BISH_CONFIG="$(cat << EOF
 #+end_src
 ** Global scope variables
+Next we have some config varibles to let bish know a bit about how you want to use your system.
+We have tried to avoid hard coding as much as possible.
+We do still however include what we think are some sensible defaults.
 #+begin_src sh :tangle bish.sh
 [bash]
 rc_path = "$HOME/repos/me/dotfiles/.bashrc"
@@ -27,94 +64,113 @@ home = "$HOME/.config/bish"
 rc_path = "$HOME/repos/me/dotfiles/.zshrc"
 #+end_src
 ** Genes
+These genes let bish know all the things it should know how to do.
+Assuming that all the functions you want are referenced here (And sourced at the time of replication), all future replications will contain that code
+If the code isn't sourced and the remote has been defined, bish can even try to fetch it for you.
+Just be careful that you know what is being fetched.
+If you tell bish to fetch and load malicios code, it will load it.
+With great power, comes great responsibility.
 *** bish genes
+Even bish's features aren't forced to be set in stone.
+We recommend that you don't change it for compatibility reasons, but it's your config after all.
 #+begin_src sh :tangle bish.sh
 # New Genes (functions) should be defined here
 [Genes]
     [Genes.bish]
             description = "Bish the BioShell"
-            remote = "bish.sh/bish.sh"
+            remote = "https://bish.sh/bish.sh"
             command = "bish"
         [Genes.bish.Depends]
             [Genes.bish.Depends.toml]
                 description = "Read and write toml files"
-                remote = "n0s1.sh/toml"
+                remote = "https://n0s1.sh/toml"
                 command = "toml"
                 use_existing = true
         [Genes.bish.SubMutations]
             [Genes.bish.SubMutations.bish_conf]
                 description = "Various tools for working with bish config"
-                remote = "n0s1.sh/bish_conf"
                 function = "bish_conf"
                 command = "bish conf"
             [Genes.bish.SubMutations.bish_transcribe]
                 description = "Write bish, config and mutations to a file"
-                remote = "n0s1.sh/bish_transcribe"
                 function = "bish_transcribe"
                 command = "bish transcribe"
             [Genes.bish.SubMutations.bish_layers]
                 description = "Load different script layers using bish"
-                remote = "n0s1.sh/bish_layers"
                 function = "bish_layers"
                 command = "bish layers"
 #+end_src
 *** n0s1 genes
+Here is an example of loading some additional functionality.
+All the code is pulled from nan0scho1ar's core repository.
+
+NOTE: The toml script IS REQUIRED.
+If you don't understand why and have not made the required changes to replace it with something else, do not remove it.
 #+begin_src sh :tangle bish.sh
     [Genes.n0s1]
         [Genes.n0s1.core]
             [Genes.n0s1.core.toml]
                 description = ""
-                remote = "n0s1.sh/toml"
+                remote = "https://n0s1.sh/toml"
                 command = "toml"
                 [Genes.n0s1.core.toml.Depends]
                     [Genes.n0s1.core.toml.Depends.exprq]
                         description = ""
-                        remote = "n0s1.sh/exprq"
+                        remote = "https://n0s1.sh/exprq"
                         command = "exprq"
                         use_existing = true
             [Genes.n0s1.core.exprq]
                     description = "Evaluate regex cleanly"
-                    remote = "n0s1.sh/exprq"
+                    remote = "https://n0s1.sh/exprq"
                     command = "exprq"
             [Genes.n0s1.core.fzy]
                     description = "Small command line fuzzy finder"
-                    remote = "n0s1.sh/fzy"
+                    remote = "https://n0s1.sh/fzy"
                     command = "fzy"
             [Genes.n0s1.core.convert]
                     description = "Easily convert between different mediums"
-                    remote = "n0s1.sh/convert"
+                    remote = "https://n0s1.sh/convert"
                     command = "convert"
             [Genes.n0s1.core.extract]
                     description = "Easily extract many types of archives with one cmd"
-                    remote = "n0s1.sh/extract"
+                    remote = "https://n0s1.sh/extract"
                     command = "extract"
         [Genes.n0s1.git_manange]
             description = "Easily manage multiple git repositories"
-            remote = "n0s1.sh/git_manange"
+            remote = "https://n0s1.sh/git_manange"
             command = "gm"
         [Genes.n0s1.g]
             description = "Quick shortcuts for common git commands"
-            remote = "n0s1.sh/g"
-            command = "g"
+            remote = "https://n0s1.sh/g"
+            aliases = "g"
 
 #+end_src
 *** Z genes
+This is quite a useful script though I have largely replaced it with cb (cd to bookmark) in my personal configuration.
 #+begin_src sh :tangle bish.sh
     [Genes.z]
         description = "Quickly navigate to recent/commonly accessed directories"
-        remote = "n0s1.sh/z"
+        remote = "https://n0s1.sh/z"
         command = "z"
 
 #+end_src
 *** Bliss genes
+This is not currently used direcly by bish but is still neat.
+We are working toward releasing a verion of bish which allows you to extend functionality using a lisp/shell hybrid, not just plain shell script, without impacting portabilty.
+This is essentially just a modified version of the bash MAL/Fleck which had been tailored to this task.
+Big thanks to the MAL (Make a lisp) project and Fleck (bash MAL makefile) project for the time save here.
 #+begin_src sh :tangle bish.sh
     [Genes.bliss]
         description = "Bioshell LISp Syntax"
-        remote = "bish.sh/bliss"
+        remote = "https://bish.sh/bliss"
         command = "bliss"
 
 #+end_src
-** Layers
+** TODO Layers
+Often you do not need to load all genes (features) at once and doing so for large configs could slow things down.
+Layers will be used to conditionally enable/disable functionality and avoid loading it when it's not needed.
+This is not fully implemented yet but should be quite useful going forwards.
+Watch this space!
 *** Begin layers
 #+begin_src sh :tangle bish.sh
 [Layers]
@@ -163,12 +219,16 @@ rc_path = "$HOME/repos/me/dotfiles/.zshrc"
                 load=true
 #+end_src
 ** State
+This is a part of the bish configuration which can be used to store persistent internal state.
+This will be more useful once the toml gene is updated to be able to set/update, not just read.
+In the meantime this can still be set/updated manually through other means.
 #+begin_src sh :tangle bish.sh
 # You should not need to touch this.
 [State]
     layer="Normal"
 #+end_src
 ** End config
+Remember, we are in a shell script so it's important that we ensure the config ends before the code starts.
 #+begin_src sh :tangle bish.sh
 # Do not change this
 EOF
@@ -176,14 +236,37 @@ EOF
 #+end_src
 * bish
 Here is the source for the bish itself, as you can see it is rather small.
+I would probably not change this too much or you could cause compatibility issues with newer more featureful versions of bish.
+If you do implement a core feature you just cannot live without, consider submitting a pull request.
+
+Current Ideas:
+- Introduce something like shellcheck when mutating to avoid pulling in smelly code.
+
 #+begin_src sh :tangle bish.sh
 bish() (
     bish_init() { source "$(bish_conf get_value "$BISH_SHELL.rc_path")" || echo "source failed: \$BISH_SHELL not set"; echo -e "bioshell v0.3.1"; }
     bish_conf() { echo "$BISH_CONFIG" | toml "$1" "$2" "$3"; }
-    bish_fetch() { source "$(curl "$(bish_conf get_value "Genes.$2.remote")")"; }
+    # TODO prompt before sourcing (similar to AUR pkg)
+    # TODO Allow choosing curl or wget
+    bish_fetch() { curl -fLO "$(bish_conf get_value "Genes.$1.remote")" > "$2"; }
     # TODO Check if any genes missing from conf
     # TODO Don't double dependencies if met elsewhere
-    bish_mutate() { echo "TODO Mutate, fetch transcribe"; }
+    bish_mutate() {
+        echo "TODO Mutate. fetch then transcribe";
+        bish_home=$(bish_conf get_value bish.home)
+        mkdir -p $bish_home/genes
+        genes="$(bish_conf get Genes | sed -n '/Depends/d;/SubMutations/d;s/Genes\.\(.*\)\.command=".*"/\1/p')"
+        for gene in $genes; do
+            echo "Fetching $gene";
+            bish_fetch "$gene" "$bish_home/genes/$gene"
+            cat  "$bish_home/genes/$gene"
+            read -p "Source file? [y/n]"
+            if [[ $REPLY = "Y|y" ]]; then
+                source  "$bish_home/genes/$gene"
+            fi
+        done
+    }
+    # TODO Transcribe alias files (not just commands)
     bish_transcribe() {
         genes="$(bish_conf get Genes | sed -n '/Depends/d;/SubMutations/d;s/.*\.command="\(.*\)"/\1/p')"
         echo -e "#!/bin/sh\n# BISH: The BioShell\n# Generated: $(date)\n# License: GPL v3\n"
@@ -192,7 +275,6 @@ bish() (
         echo -e "\nbish init"
     }
     bish_run() {
-        #TODO Fix sh version
         toml -V > /dev/null || source $(curl "n0s1.sh/toml")
         [[ -z $BISH_CONFIG ]] && echo "Error, config variable not set" && return 1
         [[ -z $BISH_SHELL ]] && BISH_SHELL="$(awk -F: -v u="$USER" 'u==$1&&$0=$NF' /etc/passwd | sed 's|/bin/||')";
@@ -203,7 +285,7 @@ bish() (
             "config") shift; bish_conf $* ;;
             "mutate") shift; bish_mutate $* ;;
             "fetch") shift; bish_fetch $* ;;
-            *) echo "Unknown option";;
+            ,*) echo "Unknown option";;
         esac
         #gene="$(bish_conf get "command" "bish $1")";
         #mutation=$(bish_conf get_value "${gene}.function");
@@ -216,14 +298,8 @@ bish() (
 )
 #+end_src
 
-* exprq
-exprq is essentially just syntactic sugar for expr. it allows you to query a regex.
-#+begin_src sh :tangle bish.sh
-exprq() { expr "$1" : "$2" 1>/dev/null; }
-
-#+end_src
 * TOML
-Since the config file is written in toml ~bish config~ needs a gene for working with toml.
+Since the config file is written in toml, ~bish config~ needs a gene for working with toml. Original source can be found in n0s1.core.
 #+begin_src sh :tangle bish.sh
 toml() {
     flatten() {
@@ -261,7 +337,7 @@ toml() {
         match="^$1.*"
         while IFS= read -r line; do
             if [[ $line =~ $match ]]; then
-                sed "s/^\(.*\)=.*/\1/" <<< "$line"
+                echo "$line"
             fi
         done < <(cat /dev/stdin | flatten)
     }
@@ -275,7 +351,7 @@ toml() {
 }
 #+end_src
 * Bish init call
-The final call in the file is to ~bish init~
+The final call in the file is to ~bish init~. This means you dont have to run ~bish init~ manually after sourcing bish.
 #+begin_src sh :tangle bish.sh
 bish init
 #+end_src

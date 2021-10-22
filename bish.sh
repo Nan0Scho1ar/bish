@@ -203,7 +203,11 @@ toml() {
             elif [[ $line =~ $header_regex ]]; then
                 parent=$(sed "$extract_header" <<< "$line")
             elif [[ $line =~ $value_regex ]]; then
-                echo "$parent.$(sed "$extract_value" <<< "$line")"
+                if [ -z $parent ]; then
+                    sed "$extract_value" <<< "$line"
+                else
+                    echo "$parent.$(sed "$extract_value" <<< "$line")"
+                fi
             fi
         done < /dev/stdin
     }

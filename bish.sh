@@ -20,28 +20,25 @@ rc_path = "$HOME/repos/me/dotfiles/.zshrc"
 [Genes]
     [Genes.bish]
             description = "Bish the BioShell"
-            remote = "bish.sh/bish.sh"
+            remote = "https://bish.sh/bish.sh"
             command = "bish"
         [Genes.bish.Depends]
             [Genes.bish.Depends.toml]
                 description = "Read and write toml files"
-                remote = "n0s1.sh/toml"
+                remote = "https://n0s1.sh/toml"
                 command = "toml"
                 use_existing = true
         [Genes.bish.SubMutations]
             [Genes.bish.SubMutations.bish_conf]
                 description = "Various tools for working with bish config"
-                remote = "n0s1.sh/bish_conf"
                 function = "bish_conf"
                 command = "bish conf"
             [Genes.bish.SubMutations.bish_transcribe]
                 description = "Write bish, config and mutations to a file"
-                remote = "n0s1.sh/bish_transcribe"
                 function = "bish_transcribe"
                 command = "bish transcribe"
             [Genes.bish.SubMutations.bish_layers]
                 description = "Load different script layers using bish"
-                remote = "n0s1.sh/bish_layers"
                 function = "bish_layers"
                 command = "bish layers"
 
@@ -49,47 +46,47 @@ rc_path = "$HOME/repos/me/dotfiles/.zshrc"
         [Genes.n0s1.core]
             [Genes.n0s1.core.toml]
                 description = ""
-                remote = "n0s1.sh/toml"
+                remote = "https://n0s1.sh/toml"
                 command = "toml"
                 [Genes.n0s1.core.toml.Depends]
                     [Genes.n0s1.core.toml.Depends.exprq]
                         description = ""
-                        remote = "n0s1.sh/exprq"
+                        remote = "https://n0s1.sh/exprq"
                         command = "exprq"
                         use_existing = true
             [Genes.n0s1.core.exprq]
                     description = "Evaluate regex cleanly"
-                    remote = "n0s1.sh/exprq"
+                    remote = "https://n0s1.sh/exprq"
                     command = "exprq"
             [Genes.n0s1.core.fzy]
                     description = "Small command line fuzzy finder"
-                    remote = "n0s1.sh/fzy"
+                    remote = "https://n0s1.sh/fzy"
                     command = "fzy"
             [Genes.n0s1.core.convert]
                     description = "Easily convert between different mediums"
-                    remote = "n0s1.sh/convert"
+                    remote = "https://n0s1.sh/convert"
                     command = "convert"
             [Genes.n0s1.core.extract]
                     description = "Easily extract many types of archives with one cmd"
-                    remote = "n0s1.sh/extract"
+                    remote = "https://n0s1.sh/extract"
                     command = "extract"
         [Genes.n0s1.git_manange]
             description = "Easily manage multiple git repositories"
-            remote = "n0s1.sh/git_manange"
+            remote = "https://n0s1.sh/git_manange"
             command = "gm"
         [Genes.n0s1.g]
             description = "Quick shortcuts for common git commands"
-            remote = "n0s1.sh/g"
-            command = "g"
+            remote = "https://n0s1.sh/g"
+            aliases = "g"
 
     [Genes.z]
         description = "Quickly navigate to recent/commonly accessed directories"
-        remote = "n0s1.sh/z"
+        remote = "https://n0s1.sh/z"
         command = "z"
 
     [Genes.bliss]
         description = "Bioshell LISp Syntax"
-        remote = "bish.sh/bliss"
+        remote = "https://bish.sh/bliss"
         command = "bliss"
 
 [Layers]
@@ -146,10 +143,27 @@ EOF
 bish() (
     bish_init() { source "$(bish_conf get_value "$BISH_SHELL.rc_path")" || echo "source failed: \$BISH_SHELL not set"; echo -e "bioshell v0.3.1"; }
     bish_conf() { echo "$BISH_CONFIG" | toml "$1" "$2" "$3"; }
-    bish_fetch() { source "$(curl "$(bish_conf get_value "Genes.$2.remote")")"; }
+    # TODO prompt before sourcing (similar to AUR pkg)
+    # TODO Allow choosing curl or wget
+    bish_fetch() { curl -fLO "$(bish_conf get_value "Genes.$1.remote")" > "$2"; }
     # TODO Check if any genes missing from conf
     # TODO Don't double dependencies if met elsewhere
-    bish_mutate() { echo "TODO Mutate, fetch transcribe"; }
+    bish_mutate() {
+        echo "TODO Mutate. fetch then transcribe";
+        bish_home=$(bish_conf get_value bish.home)
+        mkdir -p $bish_home/genes
+        genes="$(bish_conf get Genes | sed -n '/Depends/d;/SubMutations/d;s/Genes\.\(.*\)\.command=".*"/\1/p')"
+        for gene in $genes; do
+            echo "Fetching $gene";
+            bish_fetch "$gene" "$bish_home/genes/$gene"
+            cat  "$bish_home/genes/$gene"
+            read -p "Source file? [y/n]"
+            if [[ $REPLY = "Y|y" ]]; then
+                source  "$bish_home/genes/$gene"
+            fi
+        done
+    }
+    # TODO Transcribe alias files (not just commands)
     bish_transcribe() {
         genes="$(bish_conf get Genes | sed -n '/Depends/d;/SubMutations/d;s/.*\.command="\(.*\)"/\1/p')"
         echo -e "#!/bin/sh\n# BISH: The BioShell\n# Generated: $(date)\n# License: GPL v3\n"
@@ -158,7 +172,6 @@ bish() (
         echo -e "\nbish init"
     }
     bish_run() {
-        #TODO Fix sh version
         toml -V > /dev/null || source $(curl "n0s1.sh/toml")
         [[ -z $BISH_CONFIG ]] && echo "Error, config variable not set" && return 1
         [[ -z $BISH_SHELL ]] && BISH_SHELL="$(awk -F: -v u="$USER" 'u==$1&&$0=$NF' /etc/passwd | sed 's|/bin/||')";
@@ -180,8 +193,6 @@ bish() (
         bish_run $*
     fi
 )
-
-exprq() { expr "$1" : "$2" 1>/dev/null; }
 
 toml() {
     flatten() {
@@ -219,7 +230,7 @@ toml() {
         match="^$1.*"
         while IFS= read -r line; do
             if [[ $line =~ $match ]]; then
-                sed "s/^\(.*\)=.*/\1/" <<< "$line"
+                echo "$line"
             fi
         done < <(cat /dev/stdin | flatten)
     }

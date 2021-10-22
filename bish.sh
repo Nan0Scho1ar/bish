@@ -48,12 +48,6 @@ rc_path = "$HOME/repos/me/dotfiles/.zshrc"
                 description = ""
                 remote = "https://n0s1.sh/toml"
                 command = "toml"
-                [Genes.n0s1.core.toml.Depends]
-                    [Genes.n0s1.core.toml.Depends.exprq]
-                        description = ""
-                        remote = "https://n0s1.sh/exprq"
-                        command = "exprq"
-                        use_existing = true
             [Genes.n0s1.core.exprq]
                     description = "Evaluate regex cleanly"
                     remote = "https://n0s1.sh/exprq"
@@ -211,7 +205,7 @@ toml() {
             elif [[ $line =~ $value_regex ]]; then
                 echo "$parent.$(sed "$extract_value" <<< "$line")"
             fi
-        done < <(cat /dev/stdin)
+        done < /dev/stdin
     }
 
     #Returns the first value which matches the header

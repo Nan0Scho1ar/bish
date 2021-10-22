@@ -312,7 +312,7 @@ toml() {
             elif [[ $line =~ $value_regex ]]; then
                 echo "$parent.$(sed "$extract_value" <<< "$line")"
             fi
-        done < <(cat /dev/stdin)
+        done < /dev/stdin
     }
 
     #Returns the first value which matches the header

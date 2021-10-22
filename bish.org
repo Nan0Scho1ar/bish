@@ -65,13 +65,13 @@ rc_path = "$HOME/repos/me/dotfiles/.zshrc"
 #+end_src
 ** Genes
 These genes let bish know all the things it should know how to do.
-Assuming that all the functions you want are referenced here (And sourced at the time of replication), all future replications will contain that code
+Assuming that all the functions you want are referenced here (And sourced at the time of replication), all future replications will contain that code.
 If the code isn't sourced and the remote has been defined, bish can even try to fetch it for you.
 Just be careful that you know what is being fetched.
-If you tell bish to fetch and load malicios code, it will load it.
+If you tell bish to fetch and load malicious code, it will load it.
 With great power, comes great responsibility.
 *** bish genes
-Even bish's features aren't forced to be set in stone.
+Even bish's core features don't need to be set in stone.
 We recommend that you don't change it for compatibility reasons, but it's your config after all.
 #+begin_src sh :tangle bish.sh
 # New Genes (functions) should be defined here
@@ -113,12 +113,6 @@ If you don't understand why and have not made the required changes to replace it
                 description = ""
                 remote = "https://n0s1.sh/toml"
                 command = "toml"
-                [Genes.n0s1.core.toml.Depends]
-                    [Genes.n0s1.core.toml.Depends.exprq]
-                        description = ""
-                        remote = "https://n0s1.sh/exprq"
-                        command = "exprq"
-                        use_existing = true
             [Genes.n0s1.core.exprq]
                     description = "Evaluate regex cleanly"
                     remote = "https://n0s1.sh/exprq"
@@ -236,8 +230,8 @@ EOF
 #+end_src
 * bish
 Here is the source for the bish itself, as you can see it is rather small.
-I would probably not change this too much or you could cause compatibility issues with newer more featureful versions of bish.
-If you do implement a core feature you just cannot live without, consider submitting a pull request.
+I would probably not change this too much or you could cause compatibility issues with newer, more featureful versions of bish.
+If you do implement a core feature you just cannot live without and think others may agree, consider submitting a pull request.
 
 Current Ideas:
 - Introduce something like shellcheck when mutating to avoid pulling in smelly code.

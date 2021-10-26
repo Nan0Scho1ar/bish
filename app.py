@@ -48,11 +48,16 @@ def try_get_lines(file_path):
     return lines
 
 def get_content(path, request, is_man, is_raw):
-    file_path = get_file_path(path, is_man)
-    lines = try_get_lines(file_path)
     user_agent = request.headers.get('User-Agent', '').lower()
     if any([x in user_agent for x in PLAIN_TEXT_AGENTS]):
-        return try_get_lines("bish") if file_path == None else lines
+        if path == None:
+            file_path = get_file_path("bish.sh", is_man)
+        else:
+            file_path = get_file_path(path, is_man)
+        lines = try_get_lines(file_path)
+        return lines
+    file_path = get_file_path(path, is_man)
+    lines = try_get_lines(file_path)
     if file_path == None:
         abort(404)
     if is_raw:

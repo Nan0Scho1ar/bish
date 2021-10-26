@@ -1,31 +1,31 @@
 #+TITLE: Bish
-* General explanation of bish the bioshell.
+** General explanation of bish the bioshell.
 Before we begin, lets start with a few points to help prevent any confusion regarding bish.
 
-** A list of things which bish is:
-*** Bish is a shell script loader.
+*** A list of things which bish is:
+**** Bish is a shell script loader.
    If it was in your config yesterday, it should still be there today.
-*** Bish is modular.
+**** Bish is modular.
    Bish itself is a single small module which holds all the other pieces together like glue.
-*** Bish is extensible.
+**** Bish is extensible.
    Simply add an entry to your BISH_CONFIG and ensure the script is sourced, so bish knows to include it.
-*** Bish is portable.
+**** Bish is portable.
    The entire reason it exists is because I got tired of trying to reproduce my environment across multiple machines.
-*** Bish is declarative.
+**** Bish is declarative.
    So you can focus on what functionality to include in your configuration rather than focusing on ensuring it's included.
-*** Bish is self modifying.
+**** Bish is self modifying.
    While self modifying code can be painful to work with in some circumstances, this implementation makes it easy to see
    what has occured in each step of the process. The ability to self modify and include new functionality as part of its source
    is what makes it both powerful and portable.
-*** Bish is a quine.
+**** Bish is a quine.
    I could say something like "It's a feature for debuging" but the real reason is that quines are cool.
 
-** A list of things which bish isn't:
-*** Bish is not fully documented.
+*** A list of things which bish isn't:
+**** Bish is not fully documented.
    (Perhaps you can help).
-*** Bish is not limited to the field of Bioinformatics.
+**** Bish is not limited to the field of Bioinformatics.
    This is just the use case which spawned it's existence.
-*** Bish is not a replacement for your package managers.
+**** Bish is not a replacement for your package managers.
    It can however, play quite nicely with them.
 
 

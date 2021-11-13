@@ -164,7 +164,9 @@ Big thanks to the MAL (Make a lisp) project and Fleck (bash MAL makefile) projec
 #+end_src
 ** TODO Layers
 Often you do not need to load all genes (features) at once and doing so for large configs could slow things down.
+Perhaps you would like to distribute a minimal reproducible version of your shell environment/setup script with someone else.
 Layers will be used to conditionally enable/disable functionality and avoid loading it when it's not needed.
+This allows you to have your own master configuration and easily create smaller dedicated configs.
 This is not fully implemented yet but should be quite useful going forwards.
 Watch this space!
 *** Begin layers

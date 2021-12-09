@@ -1,32 +1,49 @@
 #+TITLE: Bish
-** General explanation of bish the bioshell.
-Before we begin, lets start with a few points to help prevent any confusion regarding bish.
+#+STARTUP: inlineimages
+#+LANGUAGE: en
+#+date: @@html:<!--@@{{{git-rev}}}@@html:-->@@@@latex:\\\Large\bfseries@@ {{{modification-time(%Y-%m-%d, t)}}} @@latex:\\\normalsize\mdseries@@{{{modification-time(%H:%M, t)}}} @@latex:\acr{\lowercase{@@{{{timezone}}}@@latex:}}\iffalse@@, {{{git-rev}}}@@latex:\fi@@
+#+macro: timezone (eval (substring (shell-command-to-string "date +%Z") 0 -1))
+#+macro: git-rev (eval (format "@@html:<a href=\"https://github.com/Nan0Scho1ar/bish/commit/%1$s\" style=\"text-decoration: none\"><code style=\"padding: 0; color: var(--text-light); font-size: inherit; opacity: 0.7\">%1$s</code></a>@@@@latex:\\href{https://github.com/Nan0Scho1ar/bish/commit/%1$s}{\\normalsize\\texttt{%1$s}}@@" (substring (shell-command-to-string "git rev-parse --short HEAD") 0 -1)))
+#+HTML_HEAD:
 
-*** A list of things which bish is:
-**** Bish is a shell script loader.
-   If it was in your config yesterday, it should still be there today.
-**** Bish is modular.
-   Bish itself is a single small module which holds all the other pieces together like glue.
-**** Bish is extensible.
-   Simply add an entry to your BISH_CONFIG and ensure the script is sourced, so bish knows to include it.
-**** Bish is portable.
-   The entire reason it exists is because I got tired of trying to reproduce my environment across multiple machines.
-**** Bish is declarative.
-   So you can focus on what functionality to include in your configuration rather than focusing on ensuring it's included.
-**** Bish is self modifying.
-   While self modifying code can be painful to work with in some circumstances, this implementation makes it easy to see
-   what has occured in each step of the process. The ability to self modify and include new functionality as part of its source
-   is what makes it both powerful and portable.
-**** Bish is a quine.
+#+begin_export html
+<a href="https://github.com/Nan0Scho1ar/bish"
+   style="font-family: 'Open Sans'; background-image: none; color: inherit;
+          text-decoration: none; position: relative; top: clamp(-26px, calc(1280px - 100vw), 0px); opacity: 0.7;">
+   <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAyNCIgaGVpZ2h0PSIxMDI0IiB2aWV3Qm94PSIwIDAgMTAyNCAxMDI0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTggMEMzLjU4IDAgMCAzLjU4IDAgOEMwIDExLjU0IDIuMjkgMTQuNTMgNS40NyAxNS41OUM1Ljg3IDE1LjY2IDYuMDIgMTUuNDIgNi4wMiAxNS4yMUM2LjAyIDE1LjAyIDYuMDEgMTQuMzkgNi4wMSAxMy43MkM0IDE0LjA5IDMuNDggMTMuMjMgMy4zMiAxMi43OEMzLjIzIDEyLjU1IDIuODQgMTEuODQgMi41IDExLjY1QzIuMjIgMTEuNSAxLjgyIDExLjEzIDIuNDkgMTEuMTJDMy4xMiAxMS4xMSAzLjU3IDExLjcgMy43MiAxMS45NEM0LjQ0IDEzLjE1IDUuNTkgMTIuODEgNi4wNSAxMi42QzYuMTIgMTIuMDggNi4zMyAxMS43MyA2LjU2IDExLjUzQzQuNzggMTEuMzMgMi45MiAxMC42NCAyLjkyIDcuNThDMi45MiA2LjcxIDMuMjMgNS45OSAzLjc0IDUuNDNDMy42NiA1LjIzIDMuMzggNC40MSAzLjgyIDMuMzFDMy44MiAzLjMxIDQuNDkgMy4xIDYuMDIgNC4xM0M2LjY2IDMuOTUgNy4zNCAzLjg2IDguMDIgMy44NkM4LjcgMy44NiA5LjM4IDMuOTUgMTAuMDIgNC4xM0MxMS41NSAzLjA5IDEyLjIyIDMuMzEgMTIuMjIgMy4zMUMxMi42NiA0LjQxIDEyLjM4IDUuMjMgMTIuMyA1LjQzQzEyLjgxIDUuOTkgMTMuMTIgNi43IDEzLjEyIDcuNThDMTMuMTIgMTAuNjUgMTEuMjUgMTEuMzMgOS40NyAxMS41M0M5Ljc2IDExLjc4IDEwLjAxIDEyLjI2IDEwLjAxIDEzLjAxQzEwLjAxIDE0LjA4IDEwIDE0Ljk0IDEwIDE1LjIxQzEwIDE1LjQyIDEwLjE1IDE1LjY3IDEwLjU1IDE1LjU5QzEzLjcxIDE0LjUzIDE2IDExLjUzIDE2IDhDMTYgMy41OCAxMi40MiAwIDggMFoiIHRyYW5zZm9ybT0ic2NhbGUoNjQpIiBmaWxsPSIjMUIxRjIzIi8+Cjwvc3ZnPgo="
+       class="invertible" alt="GitHub Octicon"
+       style="height: 1em; position: relative; top: 0.1em;">
+  View on GitHub</a>&ensp;
+#+end_export
+
+* General explanation of bish the bioshell.
+efore we begin, lets start with a few points to help prevent any confusion regarding bish.
+
+** A list of things which bish is:
+*** Bish is a shell script loader.
+  If it was in your config yesterday, it should still be there today.
+*** Bish is modular.
+  Bish itself is a single small module which holds all the other pieces together like glue.
+*** Bish is extensible.
+  Simply add an entry to your BISH_CONFIG and ensure the script is sourced, so bish knows to include it.
+*** Bish is portable.
+  The entire reason it exists is because I got tired of trying to reproduce my environment across multiple machines.
+*** Bish is declarative.
+  So you can focus on what functionality to include in your configuration rather than focusing on ensuring it's included.
+*** Bish is self modifying.
+  While self modifying code can be painful to work with in some circumstances, this implementation makes it easy to see
+  what has occured in each step of the process. The ability to self modify and include new functionality as part of its source
+  is what makes it both powerful and portable.
+*** Bish is a quine.
    I could say something like "It's a feature for debuging" but the real reason is that quines are cool.
 
-*** A list of things which bish isn't:
-**** Bish is not fully documented.
-   (Perhaps you can help).
-**** Bish is not limited to the field of Bioinformatics.
-   This is just the use case which spawned it's existence.
-**** Bish is not a replacement for your package managers.
-   It can however, play quite nicely with them.
+** A list of things which bish isn't:
+*** Bish is not fully documented.
+  (Perhaps you can help).
+*** Bish is not limited to the field of Bioinformatics.
+  This is just the use case which spawned it's existence.
+*** Bish is not a replacement for your package managers.
+  It can however, play quite nicely with them.
 
 
 
@@ -271,7 +288,10 @@ bish() (
         echo -e "BISH_CONFIG=\"\$(cat << EOF\n${BISH_CONFIG}\nEOF\n)\"\n"
         for gene in $genes; do type $gene | tail -n +2 && echo; done
         echo -e "\nbish init"
-    }
+    a ()
+{
+    echo "ayyy"
+}}
     bish_run() {
         toml -V > /dev/null || source $(curl "n0s1.sh/toml")
         [[ -z $BISH_CONFIG ]] && echo "Error, config variable not set" && return 1

@@ -18,7 +18,7 @@
 #+end_export
 
 * General explanation of bish the bioshell.
-efore we begin, lets start with a few points to help prevent any confusion regarding bish.
+Before we begin, lets start with a few points to help prevent any confusion regarding bish.
 
 ** A list of things which bish is:
 *** Bish is a shell script loader.
